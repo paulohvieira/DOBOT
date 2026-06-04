@@ -1,0 +1,33 @@
+import sys
+from pathlib import Path
+
+from PySide6.QtCore import QUrl
+from PySide6.QtGui import QGuiApplication
+from PySide6.QtQml import QQmlApplicationEngine
+
+from app.services.mock_dobot_service import MockDobotService
+from app.viewmodels.robot_viewmodel import RobotViewModel
+
+
+def main():
+    app = QGuiApplication(sys.argv)
+
+    qml_dir = Path(__file__).resolve().parent / "qml"
+    main_qml = qml_dir / "Main.qml"
+
+    robot_service = MockDobotService()
+    robot_view_model = RobotViewModel(robot_service)
+
+    engine = QQmlApplicationEngine()
+    engine.addImportPath(str(qml_dir))
+    engine.setInitialProperties({"robotViewModel": robot_view_model})
+    engine.load(QUrl.fromLocalFile(str(main_qml)))
+
+    if not engine.rootObjects():
+        return 1
+
+    return app.exec()
+
+
+if __name__ == "__main__":
+    sys.exit(main())
