@@ -1,6 +1,9 @@
 /*
     Exibe o streaming da câmera disponível no sistema.
 
+    Recria o pipeline de captura quando a câmera é reconectada para garantir
+    que o VideoOutput volte a receber frames após remoção do USB.
+
     Autor:
         Paulo Henrique Vieira de Souza <phsouza@cpqd.com.br>
 */
@@ -14,10 +17,10 @@ Rectangle {
 
     required property bool cameraConnected
 
+    property url disconnectedIconSource: "../../assets/videocam_off_24.svg"
     property color backgroundColor: "#101418"
     property color borderColor: "#d8dee4"
     property color textColor: "#ffffff"
-    property url disconnectedIconSource: "../../assets/videocam_off_24.svg"
     property color mutedTextColor: "#66737d"
     property int disconnectedIconSize: 64
 
@@ -26,22 +29,43 @@ Rectangle {
     border.color: root.borderColor
     clip: true
 
-    CaptureSession {
-        camera: Camera {
-            id: camera
-
-            active: root.cameraConnected
-        }
-
-        videoOutput: videoOutput
-    }
-
-    VideoOutput {
-        id: videoOutput
+    Loader {
+        id: cameraLoader
 
         anchors.fill: parent
-        fillMode: VideoOutput.PreserveAspectCrop
-        visible: root.cameraConnected
+        active: root.cameraConnected
+        sourceComponent: cameraStreamComponent
+    }
+
+    Component {
+        id: cameraStreamComponent
+
+        Item {
+            id: cameraStream
+
+            anchors.fill: parent
+
+            CaptureSession {
+                camera: Camera {
+                    id: camera
+
+                    active: true
+                }
+
+                videoOutput: videoOutput
+            }
+
+            VideoOutput {
+                id: videoOutput
+
+                anchors.fill: parent
+                fillMode: VideoOutput.PreserveAspectCrop
+            }
+
+            Component.onDestruction: {
+                camera.active = false
+            }
+        }
     }
 
     Column {
@@ -63,9 +87,5 @@ Rectangle {
             color: root.mutedTextColor
             font.pixelSize: 20
         }
-    }
-
-    Component.onDestruction: {
-        camera.active = false
     }
 }
