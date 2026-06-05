@@ -9,6 +9,24 @@ ApplicationWindow {
     required property QtObject robotViewModel
     required property QtObject cameraViewModel
 
+    property string currentPage: "manual"
+    property string protectedAction: ""
+
+    function requestProtectedAction(action) {
+        root.protectedAction = action
+        passwordDialog.open()
+    }
+
+    function executeProtectedAction() {
+        if (root.protectedAction === "config") {
+            root.currentPage = "config"
+        } else if (root.protectedAction === "exit") {
+            Qt.quit()
+        }
+
+        root.protectedAction = ""
+    }
+
     readonly property real uiScale: Math.min(
         root.width / theme.designWidth,
         root.height / theme.designHeight
@@ -129,5 +147,21 @@ ApplicationWindow {
 
             Layout.fillWidth: true
         }
+    }
+
+    SideDrawer {
+        id: sideDrawer
+
+        onManualRequested: root.currentPage = "manual"
+        onAutomaticRequested: root.currentPage = "automatic"
+        onConfigRequested: root.requestProtectedAction("config")
+        onExitRequested: root.requestProtectedAction("exit")
+    }
+
+    PasswordDialog {
+        id: passwordDialog
+
+        expectedPassword: "3242"
+        onPasswordAccepted: root.executeProtectedAction()
     }
 }

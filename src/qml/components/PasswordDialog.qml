@@ -1,0 +1,81 @@
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+Dialog {
+    id: root
+
+    signal passwordAccepted()
+
+    property string expectedPassword: "3242"
+    property string errorText: ""
+
+    title: "Senha requerida"
+    modal: true
+    standardButtons: Dialog.NoButton
+    width: 360
+
+    onOpened: {
+        passwordInput.text = ""
+        root.errorText = ""
+        passwordInput.forceActiveFocus()
+    }
+
+    ColumnLayout {
+        anchors.fill: parent
+        spacing: 12
+
+        Text {
+            text: "Digite a senha para continuar"
+            font.pixelSize: 16
+            color: "#101418"
+            Layout.fillWidth: true
+        }
+
+        TextField {
+            id: passwordInput
+
+            echoMode: TextInput.Password
+            font.pixelSize: 18
+            placeholderText: "Senha"
+            Layout.fillWidth: true
+            onAccepted: confirmButton.clicked()
+        }
+
+        Text {
+            text: root.errorText
+            color: "#d92d20"
+            font.pixelSize: 14
+            visible: root.errorText.length > 0
+            Layout.fillWidth: true
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            Button {
+                text: "Cancelar"
+                Layout.fillWidth: true
+                onClicked: root.close()
+            }
+
+            Button {
+                id: confirmButton
+
+                text: "Confirmar"
+                Layout.fillWidth: true
+                onClicked: {
+                    if (passwordInput.text === root.expectedPassword) {
+                        root.close()
+                        root.passwordAccepted()
+                        return
+                    }
+
+                    root.errorText = "Senha inválida"
+                    passwordInput.selectAll()
+                    passwordInput.forceActiveFocus()
+                }
+            }
+        }
+    }
+}
