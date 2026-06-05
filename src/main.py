@@ -7,7 +7,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 
 from app.services.mock_dobot_service import MockDobotService
 from app.viewmodels.robot_viewmodel import RobotViewModel
-
+from app.viewmodels.camera_viewmodel import CameraViewModel
 
 def main():
     app = QGuiApplication(sys.argv)
@@ -17,10 +17,12 @@ def main():
 
     robot_service = MockDobotService()
     robot_view_model = RobotViewModel(robot_service)
+    camera_view_model = CameraViewModel()
 
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(qml_dir))
-    engine.setInitialProperties({"robotViewModel": robot_view_model})
+    engine.setInitialProperties({"robotViewModel": robot_view_model,
+                                 "cameraViewModel": camera_view_model})
     engine.load(QUrl.fromLocalFile(str(main_qml)))
 
     if not engine.rootObjects():

@@ -1,11 +1,13 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "components"
 
 ApplicationWindow {
     id: root
 
     required property QtObject robotViewModel
+    required property QtObject cameraViewModel
 
     readonly property real uiScale: Math.min(
         root.width / theme.designWidth,
@@ -111,6 +113,21 @@ ApplicationWindow {
                     onClicked: root.robotViewModel.toggleConnection()
                 }
             }
+        }
+
+        StatusBar {
+            dobotConnected: root.robotViewModel.connected
+            cameraConnected: root.cameraViewModel.cameraConnected
+            clpConnected: false
+            pailotConnected: false
+
+            connectedColor: theme.cpqdTeal
+            disconnectedColor: theme.danger
+            backgroundColor: theme.surface
+            borderColor: theme.border
+            textColor: theme.text
+
+            Layout.fillWidth: true
         }
     }
 }
