@@ -10,6 +10,11 @@ Drawer {
     signal configRequested()
     signal exitRequested()
 
+    property color backgroundColor: "#ffffff"
+    property color textColor: "#101418"
+    property color hoverColor: "#eef3f4"
+    property color pressedColor: "#dfe8ea"
+
     width: 260
     height: parent.height
     edge: Qt.LeftEdge
@@ -18,7 +23,7 @@ Drawer {
 
     Rectangle {
         anchors.fill: parent
-        color: "#ffffff"
+        color: root.backgroundColor
 
         ColumnLayout {
             anchors.fill: parent
@@ -29,12 +34,15 @@ Drawer {
                 text: "Menu"
                 font.pixelSize: 24
                 font.bold: true
-                color: "#101418"
+                color: root.textColor
                 Layout.bottomMargin: 12
             }
 
             DrawerMenuButton {
                 label: "Manual"
+                textColor: root.textColor
+                hoverColor: root.hoverColor
+                pressedColor: root.pressedColor
                 onClicked: {
                     root.close()
                     root.manualRequested()
@@ -43,6 +51,9 @@ Drawer {
 
             DrawerMenuButton {
                 label: "Automático"
+                textColor: root.textColor
+                hoverColor: root.hoverColor
+                pressedColor: root.pressedColor
                 onClicked: {
                     root.close()
                     root.automaticRequested()
@@ -52,6 +63,9 @@ Drawer {
             DrawerMenuButton {
                 label: "Configurações"
                 iconSource: "../../assets/lock_24.svg"
+                textColor: root.textColor
+                hoverColor: root.hoverColor
+                pressedColor: root.pressedColor
                 onClicked: {
                     root.close()
                     root.configRequested()
@@ -65,6 +79,9 @@ Drawer {
             DrawerMenuButton {
                 label: "Sair"
                 iconSource: "../../assets/lock_24.svg"
+                textColor: root.textColor
+                hoverColor: root.hoverColor
+                pressedColor: root.pressedColor
                 onClicked: {
                     root.close()
                     root.exitRequested()

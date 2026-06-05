@@ -17,6 +17,13 @@ Item {
     property color surfaceColor: "#ffffff"
     property color borderColor: "#d8dee4"
     property color textColor: "#101418"
+    property color mutedTextColor: "#66737d"
+    property color cameraBackgroundColor: "#101418"
+    property color cameraTextColor: "#ffffff"
+    property color sliderTrackColor: "#d8dee4"
+    property color sliderFillColor: "#00d6af"
+    property color sliderHandleColor: "#101418"
+    property color sliderHandleBorderColor: "#ffffff"
 
     Loader {
         id: pageLoader
@@ -47,6 +54,13 @@ Item {
             surfaceColor: root.surfaceColor
             borderColor: root.borderColor
             textColor: root.textColor
+            mutedTextColor: root.mutedTextColor
+            cameraBackgroundColor: root.cameraBackgroundColor
+            cameraTextColor: root.cameraTextColor
+            sliderTrackColor: root.sliderTrackColor
+            sliderFillColor: root.sliderFillColor
+            sliderHandleColor: root.sliderHandleColor
+            sliderHandleBorderColor: root.sliderHandleBorderColor
         }
     }
 

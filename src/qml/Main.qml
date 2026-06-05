@@ -78,6 +78,13 @@ ApplicationWindow {
                 surfaceColor: theme.surface
                 borderColor: theme.border
                 textColor: theme.text
+                mutedTextColor: theme.mutedText
+                cameraBackgroundColor: theme.cameraPreviewBackground
+                cameraTextColor: theme.cameraPreviewText
+                sliderTrackColor: theme.sliderTrack
+                sliderFillColor: theme.sliderFill
+                sliderHandleColor: theme.sliderHandle
+                sliderHandleBorderColor: theme.sliderHandleBorder
             }
         }
 
@@ -100,6 +107,10 @@ ApplicationWindow {
     SideDrawer {
         id: sideDrawer
 
+        backgroundColor: theme.surface
+        textColor: theme.text
+        hoverColor: theme.drawerHover
+        pressedColor: theme.drawerPressed
         onManualRequested: root.currentPage = "manual"
         onAutomaticRequested: root.currentPage = "automatic"
         onConfigRequested: root.requestProtectedAction("config")
@@ -110,6 +121,8 @@ ApplicationWindow {
         id: passwordDialog
 
         expectedPassword: "3242"
+        textColor: theme.text
+        dangerColor: theme.danger
         onPasswordAccepted: root.executeProtectedAction()
     }
 }

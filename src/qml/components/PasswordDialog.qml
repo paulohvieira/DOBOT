@@ -9,6 +9,8 @@ Dialog {
 
     property string expectedPassword: "3242"
     property string errorText: ""
+    property color textColor: "#101418"
+    property color dangerColor: "#d92d20"
 
     title: "Senha requerida"
     modal: true
@@ -28,7 +30,7 @@ Dialog {
         Text {
             text: "Digite a senha para continuar"
             font.pixelSize: 16
-            color: "#101418"
+            color: root.textColor
             Layout.fillWidth: true
         }
 
@@ -44,7 +46,7 @@ Dialog {
 
         Text {
             text: root.errorText
-            color: "#d92d20"
+            color: root.dangerColor
             font.pixelSize: 14
             visible: root.errorText.length > 0
             Layout.fillWidth: true

@@ -14,6 +14,15 @@ QtObject {
     readonly property color mutedText: "#66737d"
     readonly property color danger: "#d92d20"
 
+    readonly property color sliderTrack: border
+    readonly property color sliderFill: cpqdTeal
+    readonly property color sliderHandle: text
+    readonly property color sliderHandleBorder: surface
+    readonly property color drawerHover: "#eef3f4"
+    readonly property color drawerPressed: "#dfe8ea"
+    readonly property color cameraPreviewBackground: text
+    readonly property color cameraPreviewText: surface
+
     readonly property int designWidth: 1280
     readonly property int designHeight: 800
     readonly property int defaultWidth: 1024

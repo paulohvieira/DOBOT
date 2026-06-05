@@ -1,12 +1,11 @@
 /*
-    Controle vertical reutilizável para ajuste de eixo.
+    Controle vertical reutilizável para ajuste de eixo em tela touch.
 
     Autor:
         Paulo Henrique Vieira de Souza <phsouza@cpqd.com.br>
 */
 
 import QtQuick
-import QtQuick.Controls
 import QtQuick.Layouts
 
 Rectangle {
@@ -22,10 +21,36 @@ Rectangle {
     property color backgroundColor: "#ffffff"
     property color borderColor: "#d8dee4"
     property color textColor: "#101418"
+    property color trackColor: "#d8dee4"
+    property color fillColor: "#00d6af"
+    property color handleColor: "#101418"
+    property color handleBorderColor: "#ffffff"
 
     radius: 8
     color: root.backgroundColor
     border.color: root.borderColor
+
+    function normalizedValue() {
+        if (root.to === root.from) {
+            return 0
+        }
+
+        return (root.value - root.from) / (root.to - root.from)
+    }
+
+    function valueFromY(positionY) {
+        const trackTop = sliderTrack.y
+        const trackHeight = sliderTrack.height
+        const clampedY = Math.max(trackTop, Math.min(positionY, trackTop + trackHeight))
+        const normalized = 1 - ((clampedY - trackTop) / trackHeight)
+
+        return root.from + normalized * (root.to - root.from)
+    }
+
+    function setValueFromY(positionY) {
+        root.value = valueFromY(positionY)
+        root.valueEdited(root.value)
+    }
 
     ColumnLayout {
         anchors.fill: parent
@@ -35,29 +60,68 @@ Rectangle {
         Text {
             text: root.axisLabel
             color: root.textColor
-            font.pixelSize: 22
+            font.pixelSize: 24
             font.bold: true
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
         }
 
-        Slider {
-            id: slider
+        Item {
+            id: touchArea
 
-            from: root.from
-            to: root.to
-            value: root.value
-            orientation: Qt.Vertical
+            Layout.fillWidth: true
             Layout.fillHeight: true
-            Layout.alignment: Qt.AlignHCenter
 
-            onMoved: root.valueEdited(slider.value)
+            Rectangle {
+                id: sliderTrack
+
+                width: 28
+                radius: width / 2
+                color: root.trackColor
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+
+                Rectangle {
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.bottom: parent.bottom
+                    height: parent.height * root.normalizedValue()
+                    radius: parent.radius
+                    color: root.fillColor
+                }
+            }
+
+            Rectangle {
+                id: handle
+
+                width: 64
+                height: 64
+                radius: 32
+                color: root.handleColor
+                border.color: root.handleBorderColor
+                border.width: 3
+                anchors.horizontalCenter: sliderTrack.horizontalCenter
+                y: sliderTrack.y
+                    + sliderTrack.height * (1 - root.normalizedValue())
+                    - height / 2
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onPressed: root.setValueFromY(mouse.y)
+                onPositionChanged: {
+                    if (pressed) {
+                        root.setValueFromY(mouse.y)
+                    }
+                }
+            }
         }
 
         Text {
-            text: slider.value.toFixed(1)
+            text: root.value.toFixed(1)
             color: root.textColor
-            font.pixelSize: 16
+            font.pixelSize: 18
             horizontalAlignment: Text.AlignHCenter
             Layout.fillWidth: true
         }

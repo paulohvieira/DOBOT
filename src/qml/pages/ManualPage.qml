@@ -14,6 +14,13 @@ Item {
 
     required property bool cameraConnected
 
+    property color sliderTrackColor: "#d8dee4"
+    property color sliderFillColor: "#00d6af"
+    property color sliderHandleColor: "#101418"
+    property color sliderHandleBorderColor: "#ffffff"
+    property color cameraBackgroundColor: "#101418"
+    property color cameraTextColor: "#ffffff"
+    property color mutedTextColor: "#66737d"
     property color surfaceColor: "#ffffff"
     property color borderColor: "#d8dee4"
     property color textColor: "#101418"
@@ -25,7 +32,10 @@ Item {
 
         CameraStream {
             cameraConnected: root.cameraConnected
+            backgroundColor: root.cameraBackgroundColor
             borderColor: root.borderColor
+            textColor: root.cameraTextColor
+            mutedTextColor: root.mutedTextColor
             Layout.fillWidth: true
             Layout.fillHeight: true
         }
@@ -38,7 +48,11 @@ Item {
             backgroundColor: root.surfaceColor
             borderColor: root.borderColor
             textColor: root.textColor
-            Layout.preferredWidth: 96
+            trackColor: root.sliderTrackColor
+            fillColor: root.sliderFillColor
+            handleColor: root.sliderHandleColor
+            handleBorderColor: root.sliderHandleBorderColor
+            Layout.preferredWidth: 128
             Layout.fillHeight: true
 
             onValueEdited: function(value) {
