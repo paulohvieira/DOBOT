@@ -14,8 +14,12 @@ QtObject {
     readonly property color mutedText: "#66737d"
     readonly property color danger: "#d92d20"
 
-    readonly property int screenWidth: 1280
-    readonly property int screenHeight: 800
+    readonly property int designWidth: 1280
+    readonly property int designHeight: 800
+    readonly property int defaultWidth: 1024
+    readonly property int defaultHeight: 728
+    readonly property int minimumWidth: 800
+    readonly property int minimumHeight: 480
     readonly property int spacing: 16
     readonly property int headerHeight: 72
     readonly property int controlHeight: 56

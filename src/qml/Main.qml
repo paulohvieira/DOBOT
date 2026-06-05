@@ -7,10 +7,19 @@ ApplicationWindow {
 
     required property QtObject robotViewModel
 
-    width: theme.screenWidth
-    height: theme.screenHeight
-    minimumWidth: theme.screenWidth
-    minimumHeight: theme.screenHeight
+    readonly property real uiScale: Math.min(
+        root.width / theme.designWidth,
+        root.height / theme.designHeight
+    )
+
+    function px(value) {
+        return Math.round(value * root.uiScale)
+    }
+
+    width: theme.defaultWidth
+    height: theme.defaultHeight
+    minimumWidth: theme.minimumWidth
+    minimumHeight: theme.minimumHeight
     visible: true
     title: "DOBOT CPQD"
     color: theme.background
@@ -26,18 +35,18 @@ ApplicationWindow {
         Rectangle {
             color: theme.surface
             Layout.fillWidth: true
-            Layout.preferredHeight: theme.headerHeight
+            Layout.preferredHeight: root.px(theme.headerHeight)
 
             RowLayout {
                 anchors.fill: parent
-                anchors.leftMargin: theme.spacing
-                anchors.rightMargin: theme.spacing
-                spacing: theme.spacing
+                anchors.leftMargin: root.px(theme.spacing)
+                anchors.rightMargin: root.px(theme.spacing)
+                spacing: root.px(theme.spacing)
 
                 Text {
                     text: "CPQD"
                     color: theme.text
-                    font.pixelSize: 28
+                    font.pixelSize: root.px(28)
                     font.bold: true
                     Layout.alignment: Qt.AlignVCenter
                 }
@@ -45,15 +54,15 @@ ApplicationWindow {
                 Text {
                     text: "Controle Dobot Magician"
                     color: theme.mutedText
-                    font.pixelSize: 20
+                    font.pixelSize: root.px(20)
                     Layout.alignment: Qt.AlignVCenter
                     Layout.fillWidth: true
                 }
 
                 Rectangle {
-                    width: 14
-                    height: 14
-                    radius: 7
+                    width: root.px(14)
+                    height: root.px(14)
+                    radius: width / 2
                     color: root.robotViewModel.connected ? theme.cpqdTeal : theme.danger
                     Layout.alignment: Qt.AlignVCenter
                 }
@@ -61,7 +70,7 @@ ApplicationWindow {
                 Text {
                     text: root.robotViewModel.statusText
                     color: theme.text
-                    font.pixelSize: 18
+                    font.pixelSize: root.px(18)
                     Layout.alignment: Qt.AlignVCenter
                 }
             }
@@ -74,13 +83,13 @@ ApplicationWindow {
 
             ColumnLayout {
                 anchors.centerIn: parent
-                width: 420
-                spacing: theme.spacing
+                width: Math.min(root.px(420), parent.width - root.px(2 * theme.spacing))
+                spacing: root.px(theme.spacing)
 
                 Text {
                     text: "Sistema de Controle"
                     color: theme.text
-                    font.pixelSize: 32
+                    font.pixelSize: root.px(32)
                     font.bold: true
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
@@ -89,16 +98,16 @@ ApplicationWindow {
                 Text {
                     text: root.robotViewModel.statusText
                     color: theme.mutedText
-                    font.pixelSize: 20
+                    font.pixelSize: root.px(20)
                     horizontalAlignment: Text.AlignHCenter
                     Layout.fillWidth: true
                 }
 
                 Button {
                     text: root.robotViewModel.connected ? "Desconectar" : "Conectar"
-                    font.pixelSize: 20
+                    font.pixelSize: root.px(20)
                     Layout.fillWidth: true
-                    Layout.preferredHeight: theme.controlHeight
+                    Layout.preferredHeight: root.px(theme.controlHeight)
                     onClicked: root.robotViewModel.toggleConnection()
                 }
             }
