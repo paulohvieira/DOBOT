@@ -11,11 +11,23 @@ Dialog {
     property string errorText: ""
     property color textColor: "#101418"
     property color dangerColor: "#d92d20"
-
+    property real keyboardHeight: 0
+    property real verticalMargin: 24
     title: "Senha requerida"
     modal: true
     standardButtons: Dialog.NoButton
     width: 360
+
+    x: parent ? Math.round((parent.width - width) / 2) : 0
+    y: {
+        const availableHeight = parent
+            ? parent.height - root.keyboardHeight
+            : 0
+
+        const centeredY = Math.round((availableHeight - height) / 2)
+
+        return Math.max(root.verticalMargin, centeredY)
+    }
 
     onOpened: {
         passwordInput.text = ""

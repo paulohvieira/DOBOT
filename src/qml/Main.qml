@@ -1,6 +1,8 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.VirtualKeyboard
+import QtQuick.VirtualKeyboard.Settings
 import "components"
 
 ApplicationWindow {
@@ -120,9 +122,24 @@ ApplicationWindow {
     PasswordDialog {
         id: passwordDialog
 
+        parent: Overlay.overlay
         expectedPassword: "3242"
         textColor: theme.text
         dangerColor: theme.danger
+        keyboardHeight: Qt.inputMethod.visible ? inputPanel.height : 0
         onPasswordAccepted: root.executeProtectedAction()
+    }
+
+    InputPanel {
+        id: inputPanel
+
+        z: 99
+        x: 0
+        y: Qt.inputMethod.visible ? root.height - height : root.height
+        width: root.width
+    }
+
+    Component.onCompleted: {
+        VirtualKeyboardSettings.locale = "pt_BR"
     }
 }

@@ -47,9 +47,8 @@ Rectangle {
         return root.from + normalized * (root.to - root.from)
     }
 
-    function setValueFromY(positionY) {
+    function updateValueFromY(positionY) {
         root.value = valueFromY(positionY)
-        root.valueEdited(root.value)
     }
 
     ColumnLayout {
@@ -107,15 +106,27 @@ Rectangle {
                     - height / 2
             }
 
-            MouseArea {
-                anchors.fill: parent
-                onPressed: root.setValueFromY(mouse.y)
-                onPositionChanged: {
-                    if (pressed) {
-                        root.setValueFromY(mouse.y)
-                    }
+        MouseArea {
+            anchors.fill: parent
+
+            onPressed: function(mouse) {
+                root.updateValueFromY(mouse.y)
+            }
+
+            onPositionChanged: function(mouse) {
+                if (pressed) {
+                    root.updateValueFromY(mouse.y)
                 }
             }
+
+            onReleased: function(mouse) {
+                root.valueEdited(root.value)
+            }
+
+            onCanceled: function() {
+                root.valueEdited(root.value)
+            }
+        }
         }
 
         Text {

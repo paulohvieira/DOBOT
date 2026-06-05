@@ -1,5 +1,7 @@
 import sys
+import os
 from pathlib import Path
+
 
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QGuiApplication
@@ -10,6 +12,7 @@ from app.viewmodels.robot_viewmodel import RobotViewModel
 from app.viewmodels.camera_viewmodel import CameraViewModel
 
 def main():
+    os.environ.setdefault("QT_IM_MODULE", "qtvirtualkeyboard")
     app = QGuiApplication(sys.argv)
 
     qml_dir = Path(__file__).resolve().parent / "qml"
