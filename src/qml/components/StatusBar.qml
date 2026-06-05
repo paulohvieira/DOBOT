@@ -15,7 +15,7 @@ Rectangle {
     property color borderColor: "#d8dee4"
     property color textColor: "#101418"
 
-    height: 48
+    height: 28
     color: root.backgroundColor
 
     Rectangle {

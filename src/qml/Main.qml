@@ -3,13 +3,17 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Settings
+import QtQuick.Controls.Material
 import "components"
 
 ApplicationWindow {
     id: root
-
+    Material.theme: Material.Light
+    Material.accent: theme.cpqdTeal
+    Material.primary: theme.cpqdTeal
     required property QtObject robotViewModel
     required property QtObject cameraViewModel
+    required property QtObject configViewModel
 
     property string currentPage: "manual"
     property string protectedAction: ""
@@ -55,14 +59,20 @@ ApplicationWindow {
         spacing: 0
 
         HeaderBar {
-            dobotConnected: root.robotViewModel.connected
-            robotStatusText: root.robotViewModel.statusText
+            dobotConnected: root.robotViewModel
+                ? root.robotViewModel.connected
+                : false
+            robotStatusText: root.robotViewModel
+                ? root.robotViewModel.statusText
+                : "Desconectado"
             uiScale: root.uiScale
-            backgroundColor: theme.surface
-            textColor: theme.text
-            mutedTextColor: theme.mutedText
-            connectedColor: theme.cpqdTeal
+            backgroundColor: theme.headerBackground
+            textColor: theme.headerText
+            mutedTextColor: theme.headerMutedText
+            connectedColor: theme.cpqdGreen
             disconnectedColor: theme.danger
+            menuButtonBackgroundColor: theme.menuButtonBackground
+            menuButtonPressedColor: theme.menuButtonPressed
             headerHeight: theme.headerHeight
             spacing: theme.spacing
             onMenuRequested: sideDrawer.open()
@@ -76,13 +86,18 @@ ApplicationWindow {
             PageHost {
                 anchors.fill: parent
                 currentPage: root.currentPage
-                cameraConnected: root.cameraViewModel.cameraConnected
+                cameraConnected: root.cameraViewModel
+                    ? root.cameraViewModel.cameraConnected
+                    : false
+                configViewModel: root.configViewModel
                 surfaceColor: theme.surface
                 borderColor: theme.border
                 textColor: theme.text
                 mutedTextColor: theme.mutedText
                 cameraBackgroundColor: theme.cameraPreviewBackground
                 cameraTextColor: theme.cameraPreviewText
+                sliderBackgroundColor: theme.sliderBackground
+                sliderBorderColor: theme.sliderBorder
                 sliderTrackColor: theme.sliderTrack
                 sliderFillColor: theme.sliderFill
                 sliderHandleColor: theme.sliderHandle
@@ -91,8 +106,12 @@ ApplicationWindow {
         }
 
         StatusBar {
-            dobotConnected: root.robotViewModel.connected
-            cameraConnected: root.cameraViewModel.cameraConnected
+            dobotConnected: root.robotViewModel
+                ? root.robotViewModel.connected
+                : false
+            cameraConnected: root.cameraViewModel
+                ? root.cameraViewModel.cameraConnected
+                : false
             clpConnected: false
             pailotConnected: false
 

@@ -13,7 +13,8 @@ Rectangle {
     id: root
 
     signal menuRequested()
-
+    property url menuIconSource: "../../assets/menu_24.svg"
+    property int menuIconSize: 24
     required property bool dobotConnected
     required property string robotStatusText
     required property real uiScale
@@ -23,7 +24,9 @@ Rectangle {
     property color mutedTextColor: "#66737d"
     property color connectedColor: "#00d6af"
     property color disconnectedColor: "#d92d20"
-    property int headerHeight: 72
+    property color menuButtonBackgroundColor: "#ffd133"
+    property color menuButtonPressedColor: "#92dd71"
+    property int headerHeight: 52
     property int spacing: 16
 
     function px(value) {
@@ -40,13 +43,30 @@ Rectangle {
         anchors.rightMargin: root.px(root.spacing)
         spacing: root.px(root.spacing)
 
-        Button {
-            text: "☰"
-            font.pixelSize: root.px(24)
+        Rectangle {
             Layout.preferredWidth: root.px(56)
             Layout.preferredHeight: root.px(48)
             Layout.alignment: Qt.AlignVCenter
-            onClicked: root.menuRequested()
+
+            radius: root.px(8)
+            color: menuMouseArea.pressed
+                ? root.menuButtonPressedColor
+                : root.menuButtonBackgroundColor
+
+            Image {
+                anchors.centerIn: parent
+                source: root.menuIconSource
+                sourceSize.width: root.px(root.menuIconSize)
+                sourceSize.height: root.px(root.menuIconSize)
+            }
+
+            MouseArea {
+                id: menuMouseArea
+
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.menuRequested()
+            }
         }
 
         Text {

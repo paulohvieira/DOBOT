@@ -1,7 +1,6 @@
-import sys
 import os
+import sys
 from pathlib import Path
-
 
 from PySide6.QtCore import QUrl
 from PySide6.QtGui import QGuiApplication
@@ -10,9 +9,12 @@ from PySide6.QtQml import QQmlApplicationEngine
 from app.services.mock_dobot_service import MockDobotService
 from app.viewmodels.robot_viewmodel import RobotViewModel
 from app.viewmodels.camera_viewmodel import CameraViewModel
+from app.viewmodels.config_viewmodel import ConfigViewModel
+
 
 def main():
     os.environ.setdefault("QT_IM_MODULE", "qtvirtualkeyboard")
+    os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Material")
     app = QGuiApplication(sys.argv)
 
     qml_dir = Path(__file__).resolve().parent / "qml"
@@ -21,11 +23,13 @@ def main():
     robot_service = MockDobotService()
     robot_view_model = RobotViewModel(robot_service)
     camera_view_model = CameraViewModel()
+    config_view_model = ConfigViewModel()
 
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(qml_dir))
     engine.setInitialProperties({"robotViewModel": robot_view_model,
-                                 "cameraViewModel": camera_view_model})
+                                 "cameraViewModel": camera_view_model,
+                                 "configViewModel": config_view_model})
     engine.load(QUrl.fromLocalFile(str(main_qml)))
 
     if not engine.rootObjects():

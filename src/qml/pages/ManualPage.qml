@@ -13,7 +13,9 @@ Item {
     id: root
 
     required property bool cameraConnected
-
+    required property QtObject configViewModel
+    property color sliderBackgroundColor: "transparent"
+    property color sliderBorderColor: "transparent"
     property color sliderTrackColor: "#d8dee4"
     property color sliderFillColor: "#00d6af"
     property color sliderHandleColor: "#101418"
@@ -42,17 +44,26 @@ Item {
 
         VerticalAxisSlider {
             axisLabel: "Z"
-            from: -100
-            to: 100
-            value: 0
-            backgroundColor: root.surfaceColor
-            borderColor: root.borderColor
+            from: root.configViewModel
+                ? root.configViewModel.interpolationMin
+                : 0
+            to: root.configViewModel
+                ? root.configViewModel.interpolationMax
+                : 100
+            stepSize: root.configViewModel
+                ? root.configViewModel.zStep
+                : 0.05
+            value: root.configViewModel
+                ? root.configViewModel.interpolationMin
+                : 0
+            backgroundColor: root.sliderBackgroundColor
+            borderColor: root.sliderBorderColor
             textColor: root.textColor
             trackColor: root.sliderTrackColor
             fillColor: root.sliderFillColor
             handleColor: root.sliderHandleColor
             handleBorderColor: root.sliderHandleBorderColor
-            Layout.preferredWidth: 128
+            Layout.preferredWidth: 96
             Layout.fillHeight: true
 
             onValueEdited: function(value) {

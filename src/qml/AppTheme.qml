@@ -14,14 +14,21 @@ QtObject {
     readonly property color mutedText: "#66737d"
     readonly property color danger: "#d92d20"
 
-    readonly property color sliderTrack: border
+    readonly property color sliderBackground: "transparent"
+    readonly property color sliderBorder: "transparent"
+    readonly property color sliderTrack: cpqdGreen
     readonly property color sliderFill: cpqdTeal
-    readonly property color sliderHandle: text
-    readonly property color sliderHandleBorder: surface
+    readonly property color sliderHandle: cpqdYellow
+    readonly property color sliderHandleBorder: text
     readonly property color drawerHover: "#eef3f4"
     readonly property color drawerPressed: "#dfe8ea"
     readonly property color cameraPreviewBackground: text
     readonly property color cameraPreviewText: surface
+    readonly property color headerBackground: cpqdTeal
+    readonly property color headerText: text
+    readonly property color headerMutedText: text
+    readonly property color menuButtonBackground: cpqdYellow
+    readonly property color menuButtonPressed: cpqdGreen
 
     readonly property int designWidth: 1280
     readonly property int designHeight: 800

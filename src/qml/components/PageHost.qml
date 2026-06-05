@@ -13,6 +13,7 @@ Item {
 
     required property string currentPage
     required property bool cameraConnected
+    required property QtObject configViewModel
 
     property color surfaceColor: "#ffffff"
     property color borderColor: "#d8dee4"
@@ -20,6 +21,8 @@ Item {
     property color mutedTextColor: "#66737d"
     property color cameraBackgroundColor: "#101418"
     property color cameraTextColor: "#ffffff"
+    property color sliderBackgroundColor: "transparent"
+    property color sliderBorderColor: "transparent"
     property color sliderTrackColor: "#d8dee4"
     property color sliderFillColor: "#00d6af"
     property color sliderHandleColor: "#101418"
@@ -51,12 +54,15 @@ Item {
 
         ManualPage {
             cameraConnected: root.cameraConnected
+            configViewModel: root.configViewModel
             surfaceColor: root.surfaceColor
             borderColor: root.borderColor
             textColor: root.textColor
             mutedTextColor: root.mutedTextColor
             cameraBackgroundColor: root.cameraBackgroundColor
             cameraTextColor: root.cameraTextColor
+            sliderBackgroundColor: root.sliderBackgroundColor
+            sliderBorderColor: root.sliderBorderColor
             sliderTrackColor: root.sliderTrackColor
             sliderFillColor: root.sliderFillColor
             sliderHandleColor: root.sliderHandleColor
@@ -76,8 +82,10 @@ Item {
     Component {
         id: configPageComponent
 
-        PlaceholderPage {
-            title: "Configurações"
+        ConfigPage {
+            configViewModel: root.configViewModel
+            surfaceColor: root.surfaceColor
+            borderColor: root.borderColor
             textColor: root.textColor
         }
     }
