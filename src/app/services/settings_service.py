@@ -26,16 +26,51 @@ class SettingsService:
         return self._settings_path
 
     def load(self):
-        """Carrega as configurações persistidas."""
-        if not self._settings_path.exists():
-            settings = AppSettings()
-            self.save(settings)
-            return settings
+        """Carrega as configurações persistidas.
 
-        with self._settings_path.open("r", encoding="utf-8") as settings_file:
-            data = json.load(settings_file)
+        Caso o arquivo esteja ausente, inválido ou inacessível, cria um novo
+        arquivo com valores padrão. Quando o JSON está corrompido, preserva uma
+        cópia de backup para inspeção futura.
+
+        Returns:
+            AppSettings: Configurações carregadas ou valores padrão recriados.
+        """
+        if not self._settings_path.exists():
+            return self._create_default_settings()
+
+        try:
+            with self._settings_path.open("r", encoding="utf-8") as settings_file:
+                data = json.load(settings_file)
+        except json.JSONDecodeError:
+            self._backup_corrupted_settings()
+            return self._create_default_settings()
+        except OSError:
+            return AppSettings()
 
         return AppSettings.from_dict(data)
+
+    def _create_default_settings(self):
+        """Cria, salva e retorna as configurações padrão.
+
+        Returns:
+            AppSettings: Configurações padrão da aplicação.
+        """
+        settings = AppSettings()
+        self.save(settings)
+        return settings
+
+    def _backup_corrupted_settings(self):
+        """Preserva uma cópia do arquivo JSON corrompido.
+
+        O backup usa a extensão `.bak` no mesmo diretório do arquivo original.
+        Falhas no backup são ignoradas para não impedir a aplicação de iniciar.
+        """
+        backup_path = self._settings_path.with_suffix(".json.bak")
+
+        try:
+            self._settings_path.replace(backup_path)
+        except OSError:
+            return
 
     def save(self, settings):
         """Salva as configurações no arquivo JSON."""

@@ -1,5 +1,12 @@
+"""Serviço simulado para desenvolvimento sem o Dobot real.
+
+Autor:
+    Paulo Henrique Vieira de Souza <phsouza@cpqd.com.br>
+"""
+
+
 class MockDobotService:
-    """Simulates the Dobot service while the real controller is unavailable."""
+    """Simula o serviço do Dobot enquanto o controlador real não está disponível."""
 
     def __init__(self):
         self._connected = False

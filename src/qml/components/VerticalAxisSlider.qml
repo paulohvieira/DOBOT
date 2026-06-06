@@ -115,6 +115,7 @@ Rectangle {
         root.valueEdited(root.value)
     }
 
+    // Confirma a edição numérica uma única vez por ciclo de evento.
     function commitValueInput() {
         if (valueInput.commitInProgress) {
             return
@@ -122,10 +123,14 @@ Rectangle {
 
         valueInput.commitInProgress = true
         valueInput.skipNextFocusCommit = true
+
         root.commitValueText(valueInput.text)
         valueInput.focus = false
         Qt.inputMethod.hide()
-        valueInput.commitInProgress = false
+
+        Qt.callLater(function() {
+            valueInput.commitInProgress = false
+        })
     }
 
     function valueFromY(positionY) {
