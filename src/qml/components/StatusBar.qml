@@ -4,18 +4,71 @@ import QtQuick.Layouts
 Rectangle {
     id: root
 
-    required property bool dobotConnected
-    required property bool cameraConnected
-    required property bool clpConnected
-    required property bool pailotConnected
+    required property string dobotStatus
+    required property string cameraStatus
+    required property string clpStatus
+    required property string pailotStatus
 
-    property color connectedColor: "#00d6af"
-    property color disconnectedColor: "#d92d20"
+    property color normalColor: "#2f855a"
+    property color warningColor: "#d97706"
+    property color dangerColor: "#dc2626"
+    property color infoColor: "#2563eb"
+    property color disabledColor: "#8a97a3"
+    property color unavailableColor: "#6b7280"
     property color backgroundColor: "#ffffff"
     property color borderColor: "#d8dee4"
     property color textColor: "#101418"
+    property color mutedTextColor: "#5f6f7f"
 
-    height: 28
+    function statusLabel(status) {
+        if (status === "connected") {
+            return "Conectado"
+        }
+
+        if (status === "simulated") {
+            return "Simulado"
+        }
+
+        if (status === "disabled") {
+            return "Desabilitado"
+        }
+
+        if (status === "fault") {
+            return "Falha"
+        }
+
+        if (status === "unavailable") {
+            return "Indisponível"
+        }
+
+        return "Desconectado"
+    }
+
+    function statusColor(status) {
+        if (status === "connected") {
+            return root.normalColor
+        }
+
+        if (status === "simulated") {
+            return root.infoColor
+        }
+
+        if (status === "disabled") {
+            return root.disabledColor
+        }
+
+        if (status === "fault") {
+            return root.dangerColor
+        }
+
+        if (status === "unavailable") {
+            return root.unavailableColor
+        }
+
+        return root.warningColor
+    }
+
+    height: 32
     color: root.backgroundColor
 
     Rectangle {
@@ -33,34 +86,34 @@ Rectangle {
 
         StatusItem {
             label: "DOBOT"
-            connected: root.dobotConnected
-            connectedColor: root.connectedColor
-            disconnectedColor: root.disconnectedColor
+            statusText: root.statusLabel(root.dobotStatus)
+            statusColor: root.statusColor(root.dobotStatus)
             textColor: root.textColor
+            mutedTextColor: root.mutedTextColor
         }
 
         StatusItem {
             label: "Câmera"
-            connected: root.cameraConnected
-            connectedColor: root.connectedColor
-            disconnectedColor: root.disconnectedColor
+            statusText: root.statusLabel(root.cameraStatus)
+            statusColor: root.statusColor(root.cameraStatus)
             textColor: root.textColor
+            mutedTextColor: root.mutedTextColor
         }
 
         StatusItem {
             label: "CLP"
-            connected: root.clpConnected
-            connectedColor: root.connectedColor
-            disconnectedColor: root.disconnectedColor
+            statusText: root.statusLabel(root.clpStatus)
+            statusColor: root.statusColor(root.clpStatus)
             textColor: root.textColor
+            mutedTextColor: root.mutedTextColor
         }
 
         StatusItem {
             label: "PAILOT"
-            connected: root.pailotConnected
-            connectedColor: root.connectedColor
-            disconnectedColor: root.disconnectedColor
+            statusText: root.statusLabel(root.pailotStatus)
+            statusColor: root.statusColor(root.pailotStatus)
             textColor: root.textColor
+            mutedTextColor: root.mutedTextColor
         }
 
         Item {
@@ -70,25 +123,33 @@ Rectangle {
 
     component StatusItem: RowLayout {
         required property string label
-        required property bool connected
-        required property color connectedColor
-        required property color disconnectedColor
+        required property string statusText
+        required property color statusColor
         required property color textColor
+        required property color mutedTextColor
 
         spacing: 8
 
         Rectangle {
-            width: 12
-            height: 12
             radius: 6
-            color: connected ? connectedColor : disconnectedColor
+            color: statusColor
+            Layout.preferredWidth: 12
+            Layout.preferredHeight: 12
             Layout.alignment: Qt.AlignVCenter
         }
 
         Text {
-            text: label
+            text: label + ":"
+            color: mutedTextColor
+            font.pixelSize: 15
+            Layout.alignment: Qt.AlignVCenter
+        }
+
+        Text {
+            text: statusText
             color: textColor
-            font.pixelSize: 16
+            font.pixelSize: 15
+            font.bold: true
             Layout.alignment: Qt.AlignVCenter
         }
     }

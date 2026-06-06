@@ -7,28 +7,37 @@ QtObject {
     readonly property color cpqdGreen: "#92dd71"
     readonly property color cpqdTeal: "#00d6af"
 
-    readonly property color background: "#f5f7f8"
+    readonly property color background: "#f4f6f8"
     readonly property color surface: "#ffffff"
-    readonly property color border: "#d8dee4"
-    readonly property color text: "#101418"
-    readonly property color mutedText: "#66737d"
-    readonly property color danger: "#d92d20"
+    readonly property color surfaceSecondary: "#eef1f4"
+    readonly property color border: "#cfd6dd"
+    readonly property color text: "#1f2933"
+    readonly property color mutedText: "#5f6f7f"
+    readonly property color selection: "#0b7285"
+    readonly property color selectionSoft: "#d8f3f6"
+    readonly property color normal: "#2f855a"
+    readonly property color warning: "#d97706"
+    readonly property color danger: "#dc2626"
+    readonly property color info: "#2563eb"
+    readonly property color acknowledged: "#7c3aed"
+    readonly property color disabled: "#8a97a3"
+    readonly property color unavailable: "#6b7280"
 
     readonly property color sliderBackground: "transparent"
     readonly property color sliderBorder: "transparent"
-    readonly property color sliderTrack: cpqdGreen
-    readonly property color sliderFill: cpqdTeal
-    readonly property color sliderHandle: cpqdYellow
+    readonly property color sliderTrack: border
+    readonly property color sliderFill: selection
+    readonly property color sliderHandle: surface
     readonly property color sliderHandleBorder: text
     readonly property color drawerHover: "#eef3f4"
-    readonly property color drawerPressed: "#dfe8ea"
-    readonly property color cameraPreviewBackground: text
+    readonly property color drawerPressed: selectionSoft
+    readonly property color cameraPreviewBackground: "#111827"
     readonly property color cameraPreviewText: surface
-    readonly property color headerBackground: cpqdTeal
+    readonly property color headerBackground: surface
     readonly property color headerText: text
-    readonly property color headerMutedText: text
-    readonly property color menuButtonBackground: cpqdYellow
-    readonly property color menuButtonPressed: cpqdGreen
+    readonly property color headerMutedText: mutedText
+    readonly property color menuButtonBackground: surfaceSecondary
+    readonly property color menuButtonPressed: selectionSoft
 
     readonly property int designWidth: 1280
     readonly property int designHeight: 800

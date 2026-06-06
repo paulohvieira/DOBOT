@@ -11,7 +11,9 @@ Rectangle {
     property color backgroundColor: "transparent"
     property color hoverColor: "#eef3f4"
     property color pressedColor: "#dfe8ea"
+    property color selectedColor: "#d8f3f6"
     property color textColor: "#101418"
+    property bool selected: false
     property int buttonHeight: 56
     property int iconSize: 20
     property int horizontalPadding: 16
@@ -20,9 +22,11 @@ Rectangle {
     Layout.preferredHeight: root.buttonHeight
 
     radius: 8
-    color: mouseArea.pressed
-        ? root.pressedColor
-        : mouseArea.containsMouse ? root.hoverColor : root.backgroundColor
+    color: root.selected
+        ? root.selectedColor
+        : mouseArea.pressed
+            ? root.pressedColor
+            : mouseArea.containsMouse ? root.hoverColor : root.backgroundColor
 
     RowLayout {
         anchors.fill: parent
@@ -34,6 +38,7 @@ Rectangle {
             text: root.label
             color: root.textColor
             font.pixelSize: 18
+            font.bold: root.selected
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
         }

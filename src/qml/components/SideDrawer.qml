@@ -7,13 +7,18 @@ Drawer {
 
     signal manualRequested()
     signal automaticRequested()
+    signal overviewRequested()
+    signal alarmsRequested()
+    signal diagnosticRequested()
     signal configRequested()
     signal exitRequested()
 
+    property string currentPage: "overview"
     property color backgroundColor: "#ffffff"
     property color textColor: "#101418"
     property color hoverColor: "#eef3f4"
     property color pressedColor: "#dfe8ea"
+    property color selectedColor: "#d8f3f6"
 
     width: 260
     height: parent.height
@@ -39,7 +44,22 @@ Drawer {
             }
 
             DrawerMenuButton {
+                label: "Visão Geral"
+                selected: root.currentPage === "overview"
+                selectedColor: root.selectedColor
+                textColor: root.textColor
+                hoverColor: root.hoverColor
+                pressedColor: root.pressedColor
+                onClicked: {
+                    root.close()
+                    root.overviewRequested()
+                }
+            }
+
+            DrawerMenuButton {
                 label: "Manual"
+                selected: root.currentPage === "manual"
+                selectedColor: root.selectedColor
                 textColor: root.textColor
                 hoverColor: root.hoverColor
                 pressedColor: root.pressedColor
@@ -51,6 +71,8 @@ Drawer {
 
             DrawerMenuButton {
                 label: "Automático"
+                selected: root.currentPage === "automatic"
+                selectedColor: root.selectedColor
                 textColor: root.textColor
                 hoverColor: root.hoverColor
                 pressedColor: root.pressedColor
@@ -61,8 +83,36 @@ Drawer {
             }
 
             DrawerMenuButton {
+                label: "Alarmes"
+                selected: root.currentPage === "alarms"
+                selectedColor: root.selectedColor
+                textColor: root.textColor
+                hoverColor: root.hoverColor
+                pressedColor: root.pressedColor
+                onClicked: {
+                    root.close()
+                    root.alarmsRequested()
+                }
+            }
+
+            DrawerMenuButton {
+                label: "Diagnóstico"
+                selected: root.currentPage === "diagnostic"
+                selectedColor: root.selectedColor
+                textColor: root.textColor
+                hoverColor: root.hoverColor
+                pressedColor: root.pressedColor
+                onClicked: {
+                    root.close()
+                    root.diagnosticRequested()
+                }
+            }
+
+            DrawerMenuButton {
                 label: "Configurações"
                 iconSource: "../../assets/lock_24.svg"
+                selected: root.currentPage === "config"
+                selectedColor: root.selectedColor
                 textColor: root.textColor
                 hoverColor: root.hoverColor
                 pressedColor: root.pressedColor

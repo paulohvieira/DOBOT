@@ -9,14 +9,49 @@ import "components"
 ApplicationWindow {
     id: root
     Material.theme: Material.Light
-    Material.accent: theme.cpqdTeal
-    Material.primary: theme.cpqdTeal
+    Material.accent: theme.selection
+    Material.primary: theme.selection
     required property QtObject robotViewModel
     required property QtObject cameraViewModel
     required property QtObject configViewModel
 
-    property string currentPage: "manual"
+    property string currentPage: "overview"
     property string protectedAction: ""
+
+    readonly property string dobotStatus: root.robotViewModel && root.robotViewModel.connected
+        ? "simulated"
+        : "disconnected"
+    readonly property string cameraStatus: root.cameraViewModel && root.cameraViewModel.cameraConnected
+        ? "connected"
+        : "disconnected"
+    readonly property string clpStatus: root.configViewModel && root.configViewModel.clpEnabled
+        ? "disconnected"
+        : "disabled"
+    readonly property string pailotStatus: "unavailable"
+
+    function operationModeLabel() {
+        if (root.currentPage === "manual") {
+            return "Manual"
+        }
+
+        if (root.currentPage === "automatic") {
+            return "Automático"
+        }
+
+        if (root.currentPage === "config") {
+            return "Configuração"
+        }
+
+        if (root.currentPage === "alarms") {
+            return "Alarmes"
+        }
+
+        if (root.currentPage === "diagnostic") {
+            return "Diagnóstico"
+        }
+
+        return "Visão Geral"
+    }
 
     function requestProtectedAction(action) {
         root.protectedAction = action
@@ -63,13 +98,15 @@ ApplicationWindow {
                 ? root.robotViewModel.connected
                 : false
             robotStatusText: root.robotViewModel
-                ? root.robotViewModel.statusText
+                ? root.dobotStatus === "simulated"
+                    ? "Simulado"
+                    : root.robotViewModel.statusText
                 : "Desconectado"
             uiScale: root.uiScale
             backgroundColor: theme.headerBackground
             textColor: theme.headerText
             mutedTextColor: theme.headerMutedText
-            connectedColor: theme.cpqdGreen
+            connectedColor: theme.normal
             disconnectedColor: theme.danger
             menuButtonBackgroundColor: theme.menuButtonBackground
             menuButtonPressedColor: theme.menuButtonPressed
@@ -90,10 +127,22 @@ ApplicationWindow {
                     ? root.cameraViewModel.cameraConnected
                     : false
                 configViewModel: root.configViewModel
+                operationMode: root.operationModeLabel()
+                dobotStatus: root.dobotStatus
+                cameraStatus: root.cameraStatus
+                clpStatus: root.clpStatus
+                pailotStatus: root.pailotStatus
                 surfaceColor: theme.surface
+                surfaceSecondaryColor: theme.surfaceSecondary
                 borderColor: theme.border
                 textColor: theme.text
                 mutedTextColor: theme.mutedText
+                normalColor: theme.normal
+                warningColor: theme.warning
+                dangerColor: theme.danger
+                disabledColor: theme.disabled
+                unavailableColor: theme.unavailable
+                infoColor: theme.info
                 cameraBackgroundColor: theme.cameraPreviewBackground
                 cameraTextColor: theme.cameraPreviewText
                 sliderBackgroundColor: theme.sliderBackground
@@ -106,20 +155,21 @@ ApplicationWindow {
         }
 
         StatusBar {
-            dobotConnected: root.robotViewModel
-                ? root.robotViewModel.connected
-                : false
-            cameraConnected: root.cameraViewModel
-                ? root.cameraViewModel.cameraConnected
-                : false
-            clpConnected: false
-            pailotConnected: false
+            dobotStatus: root.dobotStatus
+            cameraStatus: root.cameraStatus
+            clpStatus: root.clpStatus
+            pailotStatus: root.pailotStatus
 
-            connectedColor: theme.cpqdTeal
-            disconnectedColor: theme.danger
+            normalColor: theme.normal
+            warningColor: theme.warning
+            dangerColor: theme.danger
+            infoColor: theme.info
+            disabledColor: theme.disabled
+            unavailableColor: theme.unavailable
             backgroundColor: theme.surface
             borderColor: theme.border
             textColor: theme.text
+            mutedTextColor: theme.mutedText
 
             Layout.fillWidth: true
         }
@@ -132,8 +182,13 @@ ApplicationWindow {
         textColor: theme.text
         hoverColor: theme.drawerHover
         pressedColor: theme.drawerPressed
+        selectedColor: theme.selectionSoft
+        currentPage: root.currentPage
+        onOverviewRequested: root.currentPage = "overview"
         onManualRequested: root.currentPage = "manual"
         onAutomaticRequested: root.currentPage = "automatic"
+        onAlarmsRequested: root.currentPage = "alarms"
+        onDiagnosticRequested: root.currentPage = "diagnostic"
         onConfigRequested: root.requestProtectedAction("config")
         onExitRequested: root.requestProtectedAction("exit")
     }
