@@ -11,9 +11,12 @@ import "../pages"
 Item {
     id: root
 
+    signal cameraCalibrationRequested()
+
     required property string currentPage
     required property bool cameraConnected
     required property QtObject configViewModel
+    required property QtObject calibrationViewModel
     required property string operationMode
     required property string dobotStatus
     required property string cameraStatus
@@ -59,6 +62,10 @@ Item {
 
             if (root.currentPage === "config") {
                 return configPageComponent
+            }
+
+            if (root.currentPage === "cameraCalibration") {
+                return cameraCalibrationPageComponent
             }
 
             if (root.currentPage === "alarms") {
@@ -162,6 +169,29 @@ Item {
             surfaceColor: root.surfaceColor
             borderColor: root.borderColor
             textColor: root.textColor
+            normalColor: root.normalColor
+            warningColor: root.warningColor
+            onCameraCalibrationRequested: {
+                root.cameraCalibrationRequested()
+            }
+        }
+    }
+
+    Component {
+        id: cameraCalibrationPageComponent
+
+        CameraCalibrationPage {
+            cameraConnected: root.cameraConnected
+            calibrationViewModel: root.calibrationViewModel
+            surfaceColor: root.surfaceColor
+            surfaceSecondaryColor: root.surfaceSecondaryColor
+            borderColor: root.borderColor
+            textColor: root.textColor
+            mutedTextColor: root.mutedTextColor
+            normalColor: root.normalColor
+            warningColor: root.warningColor
+            cameraBackgroundColor: root.cameraBackgroundColor
+            cameraTextColor: root.cameraTextColor
         }
     }
 }

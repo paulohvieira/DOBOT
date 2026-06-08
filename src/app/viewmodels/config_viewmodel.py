@@ -16,6 +16,7 @@ class ConfigViewModel(QObject):
     zStepChanged = Signal()
     interpolationMinChanged = Signal()
     interpolationMaxChanged = Signal()
+    calibrationStatusChanged = Signal()
     clpEnabledChanged = Signal()
     messageChanged = Signal()
 
@@ -67,6 +68,38 @@ class ConfigViewModel(QObject):
         self._settings.motion.interpolation_max = value
         self.interpolationMaxChanged.emit()
 
+    @Property(bool, notify=calibrationStatusChanged)
+    def cameraCalibrated(self):
+        """Indica se existe calibração de câmera válida persistida.
+
+        Returns:
+            bool: `True` quando a calibração está marcada como válida.
+        """
+        return self._settings.camera_calibration.enabled
+
+    @Property(str, notify=calibrationStatusChanged)
+    def cameraCalibrationStatusText(self):
+        """Retorna o texto de status da calibração da câmera.
+
+        Returns:
+            str: Texto curto para exibição na tela de configurações.
+        """
+        if self.cameraCalibrated:
+            return "Calibrada"
+
+        return "Não calibrada"
+
+    @Slot()
+    def clearCameraCalibration(self):
+        """Remove a calibração de câmera persistida."""
+        self._settings.camera_calibration.enabled = False
+        self._settings.camera_calibration.image_points = []
+        self._settings.camera_calibration.world_points = []
+        self._settings.camera_calibration.homography = []
+        self._settings_service.save(self._settings)
+        self.calibrationStatusChanged.emit()
+        self._set_message("Calibração da câmera removida.")
+
     @Property(bool, notify=clpEnabledChanged)
     def clpEnabled(self):
         return self._settings.integrations.clp_enabled
@@ -107,6 +140,7 @@ class ConfigViewModel(QObject):
         self.zStepChanged.emit()
         self.interpolationMinChanged.emit()
         self.interpolationMaxChanged.emit()
+        self.calibrationStatusChanged.emit()
         self.clpEnabledChanged.emit()
         self._set_message("Configurações recarregadas.")
 

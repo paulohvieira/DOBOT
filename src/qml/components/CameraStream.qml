@@ -15,6 +15,8 @@ import QtMultimedia
 Rectangle {
     id: root
 
+    signal pointSelected(real x, real y)
+
     required property bool cameraConnected
 
     property url disconnectedIconSource: "../../assets/videocam_off_24.svg"
@@ -35,6 +37,15 @@ Rectangle {
         anchors.fill: parent
         active: root.cameraConnected
         sourceComponent: cameraStreamComponent
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        enabled: root.cameraConnected
+
+        onClicked: function(mouse) {
+            root.pointSelected(mouse.x, mouse.y)
+        }
     }
 
     Component {

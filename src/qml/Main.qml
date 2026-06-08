@@ -14,6 +14,7 @@ ApplicationWindow {
     required property QtObject robotViewModel
     required property QtObject cameraViewModel
     required property QtObject configViewModel
+    required property QtObject calibrationViewModel
 
     property string currentPage: "overview"
     property string protectedAction: ""
@@ -40,6 +41,10 @@ ApplicationWindow {
 
         if (root.currentPage === "config") {
             return "Configuração"
+        }
+
+        if (root.currentPage === "cameraCalibration") {
+            return "Calibração"
         }
 
         if (root.currentPage === "alarms") {
@@ -127,6 +132,7 @@ ApplicationWindow {
                     ? root.cameraViewModel.cameraConnected
                     : false
                 configViewModel: root.configViewModel
+                calibrationViewModel: root.calibrationViewModel
                 operationMode: root.operationModeLabel()
                 dobotStatus: root.dobotStatus
                 cameraStatus: root.cameraStatus
@@ -151,6 +157,9 @@ ApplicationWindow {
                 sliderFillColor: theme.sliderFill
                 sliderHandleColor: theme.sliderHandle
                 sliderHandleBorderColor: theme.sliderHandleBorder
+                onCameraCalibrationRequested: {
+                    root.currentPage = "cameraCalibration"
+                }
             }
         }
 
