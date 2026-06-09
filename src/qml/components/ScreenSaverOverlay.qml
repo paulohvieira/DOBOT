@@ -74,6 +74,7 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         enabled: root.visible
+        cursorShape: Qt.BlankCursor
         onClicked: root.close()
     }
 }
