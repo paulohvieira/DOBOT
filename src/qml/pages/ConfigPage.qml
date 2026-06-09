@@ -134,6 +134,59 @@ Item {
                 }
             }
 
+            Text {
+                text: "Tela"
+                color: root.textColor
+                font.pixelSize: 22
+                font.bold: true
+                Layout.fillWidth: true
+            }
+
+            RowLayout {
+                Layout.fillWidth: true
+
+                Label {
+                    text: "Protetor de tela"
+                    font.pixelSize: 18
+                    Layout.fillWidth: true
+                }
+
+                SpinBox {
+                    from: 30
+                    to: 300
+                    stepSize: 30
+                    value: root.configViewModel.screensaverTimeoutSeconds
+
+                    textFromValue: function(value) {
+                        if (value < 60) {
+                            return value + " s"
+                        }
+
+                        return (value / 60).toFixed(1).replace(".0", "") + " min"
+                    }
+
+                    valueFromText: function(text) {
+                        const normalizedText = text.toLowerCase()
+                        const value = Number(
+                            normalizedText
+                                .replace("s", "")
+                                .replace("min", "")
+                                .trim()
+                        )
+
+                        if (normalizedText.indexOf("min") >= 0) {
+                            return Math.round(value * 60)
+                        }
+
+                        return value
+                    }
+
+                    onValueModified: {
+                        root.configViewModel.screensaverTimeoutSeconds = value
+                    }
+                }
+            }
+
             Item {
                 Layout.fillHeight: true
             }

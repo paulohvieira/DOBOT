@@ -13,10 +13,14 @@ from app.services.settings_service import SettingsService
 class ConfigViewModel(QObject):
     """Expõe configurações persistidas para a interface QML."""
 
+    MIN_SCREENSAVER_TIMEOUT_SECONDS = 30
+    MAX_SCREENSAVER_TIMEOUT_SECONDS = 300
+
     zStepChanged = Signal()
     interpolationMinChanged = Signal()
     interpolationMaxChanged = Signal()
     clpEnabledChanged = Signal()
+    screensaverTimeoutSecondsChanged = Signal()
     messageChanged = Signal()
 
     def __init__(self, settings_service=None):
@@ -81,6 +85,21 @@ class ConfigViewModel(QObject):
         self._settings.integrations.clp_enabled = value
         self.clpEnabledChanged.emit()
 
+    @Property(int, notify=screensaverTimeoutSecondsChanged)
+    def screensaverTimeoutSeconds(self):
+        """Retorna o tempo de inatividade para abrir o screensaver."""
+        return self._settings.display.screensaver_timeout_seconds
+
+    @screensaverTimeoutSeconds.setter
+    def screensaverTimeoutSeconds(self, value):
+        value = self._clamp_screensaver_timeout(value)
+
+        if self._settings.display.screensaver_timeout_seconds == value:
+            return
+
+        self._settings.display.screensaver_timeout_seconds = value
+        self.screensaverTimeoutSecondsChanged.emit()
+
     @Property(str, notify=messageChanged)
     def message(self):
         return self._message
@@ -97,6 +116,7 @@ class ConfigViewModel(QObject):
             )
             return False
 
+        self.screensaverTimeoutSeconds = self.screensaverTimeoutSeconds
         self._settings_service.save(self._settings)
         self._set_message("Configurações salvas.")
         return True
@@ -108,7 +128,15 @@ class ConfigViewModel(QObject):
         self.interpolationMinChanged.emit()
         self.interpolationMaxChanged.emit()
         self.clpEnabledChanged.emit()
+        self.screensaverTimeoutSecondsChanged.emit()
         self._set_message("Configurações recarregadas.")
+
+    def _clamp_screensaver_timeout(self, value):
+        """Limita o tempo do screensaver entre 30 e 300 segundos."""
+        return min(
+            self.MAX_SCREENSAVER_TIMEOUT_SECONDS,
+            max(self.MIN_SCREENSAVER_TIMEOUT_SECONDS, int(value)),
+        )
 
     def _set_message(self, message):
         if self._message == message:

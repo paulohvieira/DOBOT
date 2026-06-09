@@ -24,12 +24,20 @@ class IntegrationSettings:
 
 
 @dataclass
+class DisplaySettings:
+    """Configurações de exibição da HMI."""
+
+    screensaver_timeout_seconds: int = 60
+
+
+@dataclass
 class AppSettings:
     """Configurações gerais persistidas da aplicação."""
 
     schema_version: int = 1
     motion: MotionSettings = field(default_factory=MotionSettings)
     integrations: IntegrationSettings = field(default_factory=IntegrationSettings)
+    display: DisplaySettings = field(default_factory=DisplaySettings)
 
     def to_dict(self):
         """Converte as configurações para dicionário serializável."""
@@ -40,6 +48,7 @@ class AppSettings:
         """Cria configurações a partir de um dicionário."""
         motion_data = data.get("motion", {})
         integrations_data = data.get("integrations", {})
+        display_data = data.get("display", {})
 
         return cls(
             schema_version=data.get("schema_version", 1),
@@ -50,5 +59,11 @@ class AppSettings:
             ),
             integrations=IntegrationSettings(
                 clp_enabled=integrations_data.get("clp_enabled", False),
+            ),
+            display=DisplaySettings(
+                screensaver_timeout_seconds=display_data.get(
+                    "screensaver_timeout_seconds",
+                    60,
+                ),
             ),
         )
