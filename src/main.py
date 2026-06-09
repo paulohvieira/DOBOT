@@ -6,7 +6,9 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QGuiApplication
 from PySide6.QtQml import QQmlApplicationEngine
 
+from app.services.automatic_mode_service import AutomaticModeService
 from app.services.mock_dobot_service import MockDobotService
+from app.viewmodels.automatic_viewmodel import AutomaticViewModel
 from app.viewmodels.robot_viewmodel import RobotViewModel
 from app.viewmodels.camera_viewmodel import CameraViewModel
 from app.viewmodels.config_viewmodel import ConfigViewModel
@@ -24,12 +26,15 @@ def main():
     robot_view_model = RobotViewModel(robot_service)
     camera_view_model = CameraViewModel()
     config_view_model = ConfigViewModel()
+    automatic_mode_service = AutomaticModeService()
+    automatic_view_model = AutomaticViewModel(automatic_mode_service)
 
     engine = QQmlApplicationEngine()
     engine.addImportPath(str(qml_dir))
     engine.setInitialProperties({"robotViewModel": robot_view_model,
                                  "cameraViewModel": camera_view_model,
-                                 "configViewModel": config_view_model})
+                                 "configViewModel": config_view_model,
+                                 "automaticViewModel": automatic_view_model})
     engine.load(QUrl.fromLocalFile(str(main_qml)))
 
     if not engine.rootObjects():

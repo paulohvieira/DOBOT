@@ -14,6 +14,7 @@ Item {
     required property string currentPage
     required property bool cameraConnected
     required property QtObject configViewModel
+    required property QtObject automaticViewModel
     required property string operationMode
     required property string dobotStatus
     required property string cameraStatus
@@ -120,9 +121,17 @@ Item {
     Component {
         id: automaticPageComponent
 
-        PlaceholderPage {
-            title: "Modo Automático"
+        AutomaticPage {
+            automaticViewModel: root.automaticViewModel
+            surfaceColor: root.surfaceColor
+            surfaceSecondaryColor: root.surfaceSecondaryColor
+            borderColor: root.borderColor
             textColor: root.textColor
+            mutedTextColor: root.mutedTextColor
+            normalColor: root.normalColor
+            warningColor: root.warningColor
+            dangerColor: root.dangerColor
+            infoColor: root.infoColor
         }
     }
 

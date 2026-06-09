@@ -14,6 +14,7 @@ ApplicationWindow {
     required property QtObject robotViewModel
     required property QtObject cameraViewModel
     required property QtObject configViewModel
+    required property QtObject automaticViewModel
 
     property string currentPage: "overview"
     property string protectedAction: ""
@@ -127,6 +128,7 @@ ApplicationWindow {
                     ? root.cameraViewModel.cameraConnected
                     : false
                 configViewModel: root.configViewModel
+                automaticViewModel: root.automaticViewModel
                 operationMode: root.operationModeLabel()
                 dobotStatus: root.dobotStatus
                 cameraStatus: root.cameraStatus
