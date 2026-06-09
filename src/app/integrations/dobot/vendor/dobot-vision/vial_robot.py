@@ -326,36 +326,43 @@ def vision_thread():
 			stop_end_event.set()
 
 
-# Conectar com dobot
-parser = ArgumentParser(prog='Vial Robot', description='Move frascos de um lado para o outro.')
-parser.add_argument('--dummy-robot', action='store_true')
-parser.add_argument('--com-port')
+def main():
+	global robot, mdb_client
 
-args = parser.parse_args()
+	# Conectar com dobot
+	parser = ArgumentParser(prog='Vial Robot', description='Move frascos de um lado para o outro.')
+	parser.add_argument('--dummy-robot', action='store_true')
+	parser.add_argument('--com-port')
 
-if args.dummy_robot:
-	robot = Robot(DummyRobot())
-else:
-	if not (args.com_port is None):
-		robot = Robot(Dobot(args.com_port))
+	args = parser.parse_args()
+
+	if args.dummy_robot:
+		robot = Robot(DummyRobot())
 	else:
-		robot = interactive_choose_port()
+		if not (args.com_port is None):
+			robot = Robot(Dobot(args.com_port))
+		else:
+			robot = interactive_choose_port()
 
-# Obter posições
-if not robot.load_settings():
-	print('O robô não possui posições cadastradas.')
-	exit(1)
+	# Obter posições
+	if not robot.load_settings():
+		print('O robô não possui posições cadastradas.')
+		return 1
 
-mdb_client = ModbusTcpClient(host='192.168.15.1', port=502)
+	mdb_client = ModbusTcpClient(host='192.168.15.1', port=502)
 
-r_thread = threading.Thread(target=robot_thread)
-v_thread = threading.Thread(target=vision_thread)
+	r_thread = threading.Thread(target=robot_thread)
+	v_thread = threading.Thread(target=vision_thread)
 
-r_thread.start()
-v_thread.start()
+	r_thread.start()
+	v_thread.start()
 
-r_thread.join()
-v_thread.join()
+	r_thread.join()
+	v_thread.join()
+
+	robot.close()
+	return 0
 
 
-robot.close()
+if __name__ == "__main__":
+	raise SystemExit(main())
