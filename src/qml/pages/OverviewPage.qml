@@ -93,7 +93,7 @@ Item {
             return "Pronto"
         }
 
-        return "Bloqueado"
+        return "Aguardando DOBOT"
     }
 
     function overallColor() {
@@ -152,7 +152,7 @@ Item {
                 Rectangle {
                     radius: 6
                     color: root.overallColor()
-                    Layout.preferredWidth: 160
+                    Layout.preferredWidth: 220
                     Layout.preferredHeight: 52
 
                     Text {
@@ -260,7 +260,9 @@ Item {
 
                 InfoRow {
                     label: "Permissivo de movimento"
-                    value: root.dobotStatus === "connected" ? "Liberado" : "Bloqueado"
+                    value: root.dobotStatus === "connected"
+                        ? "Liberado"
+                        : "Indisponível"
                     valueColor: root.dobotStatus === "connected"
                         ? root.normalColor
                         : root.warningColor

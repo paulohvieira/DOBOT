@@ -12,6 +12,7 @@ Drawer {
     signal diagnosticRequested()
     signal configRequested()
     signal exitRequested()
+    signal shutdownRequested()
 
     property string currentPage: "overview"
     property color backgroundColor: "#ffffff"
@@ -58,15 +59,12 @@ Drawer {
 
             DrawerMenuButton {
                 label: "Manual"
+                enabled: false
                 selected: root.currentPage === "manual"
                 selectedColor: root.selectedColor
                 textColor: root.textColor
                 hoverColor: root.hoverColor
                 pressedColor: root.pressedColor
-                onClicked: {
-                    root.close()
-                    root.manualRequested()
-                }
             }
 
             DrawerMenuButton {
@@ -135,6 +133,18 @@ Drawer {
                 onClicked: {
                     root.close()
                     root.exitRequested()
+                }
+            }
+
+            DrawerMenuButton {
+                label: "Desligar Raspberry"
+                iconSource: "../../assets/lock_24.svg"
+                textColor: root.textColor
+                hoverColor: root.hoverColor
+                pressedColor: root.pressedColor
+                onClicked: {
+                    root.close()
+                    root.shutdownRequested()
                 }
             }
         }

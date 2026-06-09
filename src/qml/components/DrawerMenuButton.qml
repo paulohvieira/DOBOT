@@ -13,6 +13,7 @@ Rectangle {
     property color pressedColor: "#dfe8ea"
     property color selectedColor: "#d8f3f6"
     property color textColor: "#101418"
+    property color disabledTextColor: "#8a97a3"
     property bool selected: false
     property int buttonHeight: 56
     property int iconSize: 20
@@ -22,11 +23,14 @@ Rectangle {
     Layout.preferredHeight: root.buttonHeight
 
     radius: 8
-    color: root.selected
+    color: !root.enabled
+        ? root.backgroundColor
+        : root.selected
         ? root.selectedColor
         : mouseArea.pressed
             ? root.pressedColor
             : mouseArea.containsMouse ? root.hoverColor : root.backgroundColor
+    opacity: root.enabled ? 1.0 : 0.55
 
     RowLayout {
         anchors.fill: parent
@@ -36,9 +40,9 @@ Rectangle {
 
         Text {
             text: root.label
-            color: root.textColor
+            color: root.enabled ? root.textColor : root.disabledTextColor
             font.pixelSize: 18
-            font.bold: root.selected
+            font.bold: root.enabled && root.selected
             verticalAlignment: Text.AlignVCenter
             Layout.fillWidth: true
         }
@@ -58,8 +62,13 @@ Rectangle {
         id: mouseArea
 
         anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
-        onClicked: root.clicked()
+        enabled: root.enabled
+        hoverEnabled: root.enabled
+        cursorShape: root.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+        onClicked: {
+            if (root.enabled) {
+                root.clicked()
+            }
+        }
     }
 }
