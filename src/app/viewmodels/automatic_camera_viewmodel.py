@@ -45,7 +45,7 @@ class AutomaticCameraViewModel(QObject):
         self._frame_revision = 0
         self._running = False
         self._barrier_breached = False
-        self._status_text = "Preview parado."
+        self._status_text = "Câmera desconectada."
         self._current_frame = QImage()
         self._timer = QTimer(self)
         self._timer.setInterval(66)
@@ -111,11 +111,11 @@ class AutomaticCameraViewModel(QObject):
             return
 
         if not self._automatic_camera_service.start():
-            self._set_status_text(self._automatic_camera_service.last_error)
+            self._set_status_text("Câmera desconectada.")
             return
 
         self._running = True
-        self._set_status_text("Preview OpenCV ativo.")
+        self._set_status_text("Câmera conectada.")
         self.runningChanged.emit()
         self._timer.start()
 
@@ -131,7 +131,7 @@ class AutomaticCameraViewModel(QObject):
         self._set_barrier_breached(False)
         self._set_barrier_release_countdown(0)
         self._barrier_release_deadline = None
-        self._set_status_text("Preview parado.")
+        self._set_status_text("Câmera desconectada.")
         self.runningChanged.emit()
 
     @Slot()
@@ -144,7 +144,7 @@ class AutomaticCameraViewModel(QObject):
         self._automatic_camera_service.stop()
         self._running = False
         self._update_paused_countdown()
-        self._set_status_text("Preview pausado.")
+        self._set_status_text("Câmera desconectada.")
         self.runningChanged.emit()
 
     def _refresh_frame(self):
@@ -156,7 +156,7 @@ class AutomaticCameraViewModel(QObject):
             self._automatic_camera_service.stop()
             self._running = False
             self._update_paused_countdown()
-            self._set_status_text(self._automatic_camera_service.last_error)
+            self._set_status_text("Câmera desconectada.")
             self.runningChanged.emit()
             return
 
@@ -183,7 +183,7 @@ class AutomaticCameraViewModel(QObject):
         if not self._barrier_breached:
             self._barrier_release_deadline = None
             self._set_barrier_release_countdown(0)
-            self._set_status_text("Preview OpenCV ativo.")
+            self._set_status_text("Câmera conectada.")
             return
 
         remaining_seconds = self._remaining_release_seconds()
@@ -192,7 +192,7 @@ class AutomaticCameraViewModel(QObject):
         if remaining_seconds <= 0:
             self._barrier_release_deadline = None
             self._set_barrier_breached(False)
-            self._set_status_text("Preview OpenCV ativo.")
+            self._set_status_text("Câmera conectada.")
             return
 
         self._set_status_text(

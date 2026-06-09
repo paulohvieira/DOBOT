@@ -54,7 +54,7 @@ Item {
     function cameraPreviewStatusText() {
         return root.automaticCameraViewModel
             ? root.automaticCameraViewModel.statusText
-            : "Preview indisponível."
+            : "Câmera desconectada."
     }
 
     function barrierReleaseCountdown() {
@@ -140,7 +140,7 @@ Item {
 
                     Text {
                         anchors.horizontalCenter: parent.horizontalCenter
-                        text: "Preview parado"
+                        text: "Câmera desconectada"
                         color: root.cameraTextColor
                         font.pixelSize: 20
                         font.bold: true
