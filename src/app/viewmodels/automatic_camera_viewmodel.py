@@ -12,6 +12,7 @@ from PySide6.QtGui import QImage
 
 
 DEFAULT_BARRIER_RELEASE_TIMEOUT_SECONDS = 10
+DEFAULT_RECONNECT_INTERVAL_MS = 1000
 
 
 class AutomaticCameraViewModel(QObject):
@@ -44,12 +45,16 @@ class AutomaticCameraViewModel(QObject):
         self._barrier_release_countdown = 0
         self._frame_revision = 0
         self._running = False
+        self._preview_requested = False
         self._barrier_breached = False
         self._status_text = "Câmera desconectada."
         self._current_frame = QImage()
         self._timer = QTimer(self)
         self._timer.setInterval(66)
         self._timer.timeout.connect(self._refresh_frame)
+        self._reconnect_timer = QTimer(self)
+        self._reconnect_timer.setInterval(DEFAULT_RECONNECT_INTERVAL_MS)
+        self._reconnect_timer.timeout.connect(self._try_reconnect)
 
     @Property(int, notify=frameRevisionChanged)
     def frameRevision(self):
@@ -107,45 +112,49 @@ class AutomaticCameraViewModel(QObject):
     @Slot()
     def startPreview(self):
         """Inicia a captura de frames OpenCV."""
+        self._preview_requested = True
+
         if self._running:
             return
 
         if not self._automatic_camera_service.start():
-            self._set_status_text("Câmera desconectada.")
+            self._set_status_text("Câmera desconectada. Tentando reconectar.")
+            self._start_reconnect_timer()
             return
 
-        self._running = True
-        self._set_status_text("Câmera conectada.")
-        self.runningChanged.emit()
-        self._timer.start()
+        self._start_capture_timer()
 
     @Slot()
     def stopPreview(self):
         """Para a captura de frames OpenCV e limpa o estado operacional."""
-        if not self._running:
-            return
+        self._preview_requested = False
+        self._reconnect_timer.stop()
 
-        self._timer.stop()
+        if self._running:
+            self._timer.stop()
+            self._running = False
+            self.runningChanged.emit()
+
         self._automatic_camera_service.stop()
-        self._running = False
         self._set_barrier_breached(False)
         self._set_barrier_release_countdown(0)
         self._barrier_release_deadline = None
         self._set_status_text("Câmera desconectada.")
-        self.runningChanged.emit()
 
     @Slot()
     def pausePreview(self):
         """Pausa a captura sem limpar barreira ou contagem regressiva."""
-        if not self._running:
-            return
+        self._preview_requested = False
+        self._reconnect_timer.stop()
 
-        self._timer.stop()
+        if self._running:
+            self._timer.stop()
+            self._running = False
+            self.runningChanged.emit()
+
         self._automatic_camera_service.stop()
-        self._running = False
         self._update_paused_countdown()
         self._set_status_text("Câmera desconectada.")
-        self.runningChanged.emit()
 
     def _refresh_frame(self):
         """Atualiza o frame usado pelo provider de imagem."""
@@ -156,8 +165,9 @@ class AutomaticCameraViewModel(QObject):
             self._automatic_camera_service.stop()
             self._running = False
             self._update_paused_countdown()
-            self._set_status_text("Câmera desconectada.")
+            self._set_status_text("Câmera desconectada. Tentando reconectar.")
             self.runningChanged.emit()
+            self._start_reconnect_timer()
             return
 
         self._current_frame = frame
@@ -166,6 +176,31 @@ class AutomaticCameraViewModel(QObject):
             self._automatic_camera_service.barrier_breached
         )
         self.frameRevisionChanged.emit()
+
+    def _try_reconnect(self):
+        """Tenta restaurar a captura enquanto o preview estiver ativo."""
+        if not self._preview_requested or self._running:
+            self._reconnect_timer.stop()
+            return
+
+        if not self._automatic_camera_service.start():
+            self._set_status_text("Câmera desconectada. Tentando reconectar.")
+            return
+
+        self._start_capture_timer()
+
+    def _start_capture_timer(self):
+        """Marca a camera como conectada e inicia a leitura de frames."""
+        self._reconnect_timer.stop()
+        self._running = True
+        self._set_status_text("Câmera conectada.")
+        self.runningChanged.emit()
+        self._timer.start()
+
+    def _start_reconnect_timer(self):
+        """Agenda tentativas periodicas de reconexao."""
+        if self._preview_requested and not self._reconnect_timer.isActive():
+            self._reconnect_timer.start()
 
     def _update_barrier_state(self, current_frame_breached):
         """Atualiza o estado persistido da barreira com timeout regressivo."""

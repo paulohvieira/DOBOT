@@ -41,14 +41,19 @@ class VirtualBarrier:
 		return False
 	
 	def detection_pass(self, contours: Sequence[cv.typing.MatLike], h: int, w: int) -> None:
+		barrier1 = self._barrier_for_size(self._barrier1, h, w)
+		barrier2 = self._barrier_for_size(self._barrier2, h, w)
+
+		if barrier1 is None or barrier2 is None:
+			return
 
 		for cnt in contours:
 			mask = np.zeros((h, w), dtype=np.uint8)
 
 			cv.drawContours(mask, [cnt], -1, 255, thickness= cv.FILLED)
 
-			intersect_1 = np.any(cv.bitwise_and(mask, self._barrier1))
-			intersect_2 = np.any(cv.bitwise_and(mask, self._barrier2))
+			intersect_1 = np.any(cv.bitwise_and(mask, barrier1))
+			intersect_2 = np.any(cv.bitwise_and(mask, barrier2))
 			if intersect_1 and intersect_2:
 				self._breached = True
 				self._breached_time = time()
@@ -69,11 +74,26 @@ class VirtualBarrier:
 
 	def draw_barriers(self, frame: cv.typing.MatLike) -> cv.typing.MatLike:
 		display = frame.copy()
+		h, w = display.shape[:2]
+		barrier1 = self._barrier_for_size(self._barrier1, h, w)
+		barrier2 = self._barrier_for_size(self._barrier2, h, w)
 
-		display[self._barrier1 > 0] = (0,0,255)   # Barreira vermelha
-		display[self._barrier2 > 0] = (0,255,255) # Barreira amarela
+		if barrier1 is not None:
+			display[barrier1 > 0] = (0,0,255)   # Barreira vermelha
+
+		if barrier2 is not None:
+			display[barrier2 > 0] = (0,255,255) # Barreira amarela
 	
 		return display
+
+	def _barrier_for_size(self, barrier: cv.typing.MatLike | None, h: int, w: int) -> cv.typing.MatLike | None:
+		if barrier is None:
+			return None
+
+		if barrier.shape == (h, w):
+			return barrier
+
+		return cv.resize(barrier, (w, h), interpolation=cv.INTER_NEAREST)
 	
 def interactive_select_barriers(cap: cv.VideoCapture, mtx: cv.typing.MatLike, dist: cv.typing.MatLike) -> tuple[bool, cv.typing.MatLike, cv.typing.MatLike]:
 	"""Permite que o usuário desenhe as duas barreiras selecionando pontos na imagem.

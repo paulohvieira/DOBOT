@@ -93,7 +93,17 @@ ApplicationWindow {
         return Math.max(30000, Math.min(300000, timeoutSeconds * 1000))
     }
 
+    function screensaverEnabled() {
+        return root.currentPage !== "automatic"
+    }
+
     function resetScreensaverTimer() {
+        if (!root.screensaverEnabled()) {
+            inactivityTimer.stop()
+            screenSaver.close()
+            return
+        }
+
         inactivityTimer.interval = root.screensaverTimeoutMs()
         inactivityTimer.restart()
     }
@@ -265,6 +275,9 @@ ApplicationWindow {
     InputPanel {
         id: inputPanel
 
+        Material.theme: Material.Light
+        Material.accent: theme.selection
+        Material.primary: theme.selection
         z: 99
         x: 0
         y: Qt.inputMethod.visible ? root.height - height : root.height
@@ -284,13 +297,19 @@ ApplicationWindow {
         interval: root.screensaverTimeoutMs()
         running: true
         repeat: false
-        onTriggered: screenSaver.open()
+        onTriggered: {
+            if (root.screensaverEnabled()) {
+                screenSaver.open()
+            }
+        }
     }
 
     Component.onCompleted: {
         VirtualKeyboardSettings.locale = "pt_BR"
         root.resetScreensaverTimer()
     }
+
+    onCurrentPageChanged: root.resetScreensaverTimer()
 
     Connections {
         target: root.configViewModel
