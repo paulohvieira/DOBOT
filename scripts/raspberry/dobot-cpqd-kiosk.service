@@ -1,0 +1,14 @@
+[Unit]
+Description=DOBOT CPQD Kiosk HMI
+After=graphical-session.target
+Wants=graphical-session.target
+
+[Service]
+Type=simple
+Environment=DOBOT_CPQD_PROJECT_DIR=%h/DOBOT
+ExecStart=%h/DOBOT/scripts/raspberry/start_kiosk.sh
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

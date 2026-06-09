@@ -20,6 +20,15 @@ from app.viewmodels.config_viewmodel import ConfigViewModel
 from app.viewmodels.system_control_viewmodel import SystemControlViewModel
 
 
+def is_kiosk_mode_enabled():
+    """Verifica se a aplicação deve iniciar em modo kiosk.
+
+    Returns:
+        bool: `True` quando `--kiosk` ou `DOBOT_CPQD_KIOSK=1` foi informado.
+    """
+    return "--kiosk" in sys.argv or os.environ.get("DOBOT_CPQD_KIOSK") == "1"
+
+
 def main():
     os.environ.setdefault("QT_IM_MODULE", "qtvirtualkeyboard")
     os.environ.setdefault("QT_QUICK_CONTROLS_STYLE", "Material")
@@ -58,6 +67,7 @@ def main():
         "alarmViewModel": alarm_view_model,
         "automaticViewModel": automatic_view_model,
         "automaticCameraViewModel": automatic_camera_view_model,
+        "kioskMode": is_kiosk_mode_enabled(),
     })
     engine.load(QUrl.fromLocalFile(str(main_qml)))
 

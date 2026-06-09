@@ -19,6 +19,7 @@ ApplicationWindow {
     required property QtObject alarmViewModel
     required property QtObject automaticViewModel
     required property QtObject automaticCameraViewModel
+    required property bool kioskMode
 
     property string currentPage: "overview"
     property string protectedAction: ""
@@ -102,6 +103,9 @@ ApplicationWindow {
     minimumWidth: theme.minimumWidth
     minimumHeight: theme.minimumHeight
     visible: true
+    visibility: root.kioskMode
+        ? Window.FullScreen
+        : Window.Windowed
     title: "DOBOT CPQD"
     color: theme.background
 
