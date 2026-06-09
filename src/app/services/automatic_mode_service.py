@@ -72,7 +72,7 @@ class AutomaticModeService:
         self._last_error = "Barreira virtual acionada."
 
     def clear_barrier_stop(self):
-        """Libera a parada por barreira virtual.
+        """Libera a parada por barreira virtual e retoma o automático.
 
         Returns:
             bool: `True` quando a parada por barreira foi liberada.
@@ -80,6 +80,6 @@ class AutomaticModeService:
         if self._state != AutomaticModeState.BARRIER_STOPPED:
             return False
 
-        self._state = AutomaticModeState.STOPPED
+        self._state = AutomaticModeState.RUNNING
         self._last_error = ""
         return True
