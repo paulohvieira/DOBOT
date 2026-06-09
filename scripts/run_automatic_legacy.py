@@ -29,6 +29,11 @@ def parse_args():
         "--com-port",
         help="Porta serial do Dobot, por exemplo COM3 ou /dev/ttyUSB0.",
     )
+    parser.add_argument(
+        "--disable-andon",
+        action="store_true",
+        help="Desabilita a conexao com CLP/Andon do modo automatico legado.",
+    )
 
     return parser.parse_args()
 
@@ -50,6 +55,9 @@ def build_legacy_command(args, legacy_script):
 
     if args.com_port:
         command.extend(["--com-port", args.com_port])
+
+    if args.disable_andon or args.dummy_robot:
+        command.append("--disable-andon")
 
     return command
 

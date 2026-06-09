@@ -25,6 +25,18 @@ latest_movement = None
 
 movement_lock = threading.Lock()
 stopped = False
+andon_enabled = True
+mdb_client = None
+
+
+class NullAndon:
+	"""Substitui o Andon real quando a integracao com CLP esta desabilitada."""
+
+	def __init__(self):
+		self.state = None
+
+	def set_state(self, state):
+		self.state = state
 
 def robot_thread():
 	global robot, running, stop_begin_event, stop_end_event, latest_movement, movement_lock, stopped
@@ -126,9 +138,9 @@ def homography_select_points(w, h, cap, mtx, dist) -> tuple[bool, cv.typing.MatL
 	return found_homography, hom_mask
 
 def vision_thread():
-	global running, latest_movement, movement_lock, stop_begin_event, stop_end_event, stopped, mdb_client
+	global running, latest_movement, movement_lock, stop_begin_event, stop_end_event, stopped, mdb_client, andon_enabled
 
-	andon = Andon(mdb_client, 1)
+	andon = Andon(mdb_client, 1) if andon_enabled else NullAndon()
 	andon.set_state(AndonState.GREEN)
 	# Obter imagem
 	cap = cv.VideoCapture(0)
@@ -327,14 +339,16 @@ def vision_thread():
 
 
 def main():
-	global robot, mdb_client
+	global robot, mdb_client, andon_enabled
 
 	# Conectar com dobot
 	parser = ArgumentParser(prog='Vial Robot', description='Move frascos de um lado para o outro.')
 	parser.add_argument('--dummy-robot', action='store_true')
 	parser.add_argument('--com-port')
+	parser.add_argument('--disable-andon', action='store_true')
 
 	args = parser.parse_args()
+	andon_enabled = not args.disable_andon
 
 	if args.dummy_robot:
 		robot = Robot(DummyRobot())
@@ -349,7 +363,8 @@ def main():
 		print('O robô não possui posições cadastradas.')
 		return 1
 
-	mdb_client = ModbusTcpClient(host='192.168.15.1', port=502)
+	if andon_enabled:
+		mdb_client = ModbusTcpClient(host='192.168.15.1', port=502)
 
 	r_thread = threading.Thread(target=robot_thread)
 	v_thread = threading.Thread(target=vision_thread)
