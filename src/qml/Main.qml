@@ -12,9 +12,13 @@ ApplicationWindow {
     Material.accent: theme.selection
     Material.primary: theme.selection
     required property QtObject robotViewModel
+    required property QtObject activityMonitor
     required property QtObject cameraViewModel
     required property QtObject configViewModel
+    required property QtObject systemControlViewModel
+    required property QtObject alarmViewModel
     required property QtObject automaticViewModel
+    required property QtObject automaticCameraViewModel
 
     property string currentPage: "overview"
     property string protectedAction: ""
@@ -64,6 +68,8 @@ ApplicationWindow {
             root.currentPage = "config"
         } else if (root.protectedAction === "exit") {
             Qt.quit()
+        } else if (root.protectedAction === "shutdown") {
+            shutdownConfirmDialog.open()
         }
 
         root.protectedAction = ""
@@ -76,6 +82,19 @@ ApplicationWindow {
 
     function px(value) {
         return Math.round(value * root.uiScale)
+    }
+
+    function screensaverTimeoutMs() {
+        const timeoutSeconds = root.configViewModel
+            ? root.configViewModel.screensaverTimeoutSeconds
+            : 60
+
+        return Math.max(30000, Math.min(300000, timeoutSeconds * 1000))
+    }
+
+    function resetScreensaverTimer() {
+        inactivityTimer.interval = root.screensaverTimeoutMs()
+        inactivityTimer.restart()
     }
 
     width: theme.defaultWidth
@@ -95,20 +114,10 @@ ApplicationWindow {
         spacing: 0
 
         HeaderBar {
-            dobotConnected: root.robotViewModel
-                ? root.robotViewModel.connected
-                : false
-            robotStatusText: root.robotViewModel
-                ? root.dobotStatus === "simulated"
-                    ? "Simulado"
-                    : root.robotViewModel.statusText
-                : "Desconectado"
             uiScale: root.uiScale
             backgroundColor: theme.headerBackground
             textColor: theme.headerText
             mutedTextColor: theme.headerMutedText
-            connectedColor: theme.normal
-            disconnectedColor: theme.danger
             menuButtonBackgroundColor: theme.menuButtonBackground
             menuButtonPressedColor: theme.menuButtonPressed
             headerHeight: theme.headerHeight
@@ -128,7 +137,9 @@ ApplicationWindow {
                     ? root.cameraViewModel.cameraConnected
                     : false
                 configViewModel: root.configViewModel
+                alarmViewModel: root.alarmViewModel
                 automaticViewModel: root.automaticViewModel
+                automaticCameraViewModel: root.automaticCameraViewModel
                 operationMode: root.operationModeLabel()
                 dobotStatus: root.dobotStatus
                 cameraStatus: root.cameraStatus
@@ -193,6 +204,7 @@ ApplicationWindow {
         onDiagnosticRequested: root.currentPage = "diagnostic"
         onConfigRequested: root.requestProtectedAction("config")
         onExitRequested: root.requestProtectedAction("exit")
+        onShutdownRequested: root.requestProtectedAction("shutdown")
     }
 
     PasswordDialog {
@@ -206,6 +218,46 @@ ApplicationWindow {
         onPasswordAccepted: root.executeProtectedAction()
     }
 
+    ConfirmationDialog {
+        id: shutdownConfirmDialog
+
+        parent: Overlay.overlay
+        title: "Desligar Raspberry"
+        message: "Tem certeza que deseja fechar a aplicação e desligar a Raspberry Pi?"
+        confirmText: "Desligar"
+        cancelText: "Cancelar"
+        textColor: theme.text
+        dangerColor: theme.danger
+        keyboardHeight: Qt.inputMethod.visible ? inputPanel.height : 0
+        onConfirmed: {
+            if (!root.systemControlViewModel.shutdownSystem()) {
+                shutdownFeedbackDialog.open()
+            }
+        }
+    }
+
+    Dialog {
+        id: shutdownFeedbackDialog
+
+        parent: Overlay.overlay
+        title: "Desligamento indisponível"
+        modal: true
+        standardButtons: Dialog.Ok
+        width: 420
+        x: parent ? Math.round((parent.width - width) / 2) : 0
+        y: parent ? Math.round((parent.height - height) / 2) : 0
+
+        Text {
+            text: root.systemControlViewModel
+                ? root.systemControlViewModel.message
+                : "Não foi possível solicitar o desligamento."
+            color: theme.text
+            font.pixelSize: 16
+            wrapMode: Text.WordWrap
+            width: parent ? parent.width : 360
+        }
+    }
+
     InputPanel {
         id: inputPanel
 
@@ -215,7 +267,61 @@ ApplicationWindow {
         width: root.width
     }
 
+    ScreenSaverOverlay {
+        id: screenSaver
+
+        anchors.fill: parent
+        onDismissed: root.resetScreensaverTimer()
+    }
+
+    Timer {
+        id: inactivityTimer
+
+        interval: root.screensaverTimeoutMs()
+        running: true
+        repeat: false
+        onTriggered: screenSaver.open()
+    }
+
     Component.onCompleted: {
         VirtualKeyboardSettings.locale = "pt_BR"
+        root.resetScreensaverTimer()
+    }
+
+    Connections {
+        target: root.configViewModel
+
+        function onScreensaverTimeoutSecondsChanged() {
+            root.resetScreensaverTimer()
+        }
+    }
+
+    Connections {
+        target: root.activityMonitor
+
+        function onActivityDetected() {
+            if (screenSaver.visible) {
+                screenSaver.close()
+                return
+            }
+
+            root.resetScreensaverTimer()
+        }
+    }
+
+    Connections {
+        target: root.automaticCameraViewModel
+
+        function onBarrierBreachedChanged() {
+            if (!root.alarmViewModel || !root.automaticCameraViewModel) {
+                return
+            }
+
+            if (root.automaticCameraViewModel.barrierBreached) {
+                root.alarmViewModel.logBarrierBreached()
+            } else {
+                root.alarmViewModel.logBarrierReleased()
+            }
+        }
     }
 }

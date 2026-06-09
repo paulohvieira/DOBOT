@@ -14,6 +14,7 @@ Item {
     id: root
 
     required property QtObject automaticViewModel
+    required property QtObject automaticCameraViewModel
     required property bool cameraConnected
 
     property color surfaceColor: "#ffffff"
@@ -28,16 +29,76 @@ Item {
     property color cameraBackgroundColor: "#101418"
     property color cameraTextColor: "#ffffff"
 
+    function automaticState() {
+        return root.automaticViewModel ? root.automaticViewModel.state : "stopped"
+    }
+
+    function automaticStateText() {
+        return root.automaticViewModel
+            ? root.automaticViewModel.stateText
+            : "Parado"
+    }
+
+    function automaticMessage() {
+        return root.automaticViewModel
+            ? root.automaticViewModel.message
+            : ""
+    }
+
+    function cameraPreviewRunning() {
+        return root.automaticCameraViewModel
+            ? root.automaticCameraViewModel.running
+            : false
+    }
+
+    function cameraPreviewStatusText() {
+        return root.automaticCameraViewModel
+            ? root.automaticCameraViewModel.statusText
+            : "Preview indisponível."
+    }
+
+    function barrierReleaseCountdown() {
+        return root.automaticCameraViewModel
+            ? root.automaticCameraViewModel.barrierReleaseCountdown
+            : 0
+    }
+
+    function operationalMessage() {
+        if (root.barrierReleaseCountdown() > 0
+                && root.automaticState() === "barrier_stopped") {
+            return "Liberação automática em "
+                + root.barrierReleaseCountdown()
+                + "s."
+        }
+
+        if (root.automaticMessage().length > 0) {
+            return root.automaticMessage()
+        }
+
+        return "Modo automático ativo."
+    }
+
+    function cameraFrameSource() {
+        if (!root.cameraPreviewRunning()) {
+            return ""
+        }
+
+        return "image://automaticCamera/frame/"
+            + root.automaticCameraViewModel.frameRevision
+    }
+
     function stateColor() {
-        if (root.automaticViewModel.state === "running") {
+        const state = root.automaticState()
+
+        if (state === "running") {
             return root.normalColor
         }
 
-        if (root.automaticViewModel.state === "barrier_stopped") {
+        if (state === "barrier_stopped") {
             return root.dangerColor
         }
 
-        if (root.automaticViewModel.state === "fault") {
+        if (state === "fault") {
             return root.dangerColor
         }
 
@@ -65,22 +126,35 @@ Item {
                 Layout.fillHeight: true
                 clip: true
 
-                CameraStream {
+                Image {
                     anchors.fill: parent
-                    cameraConnected: root.cameraConnected
-                    backgroundColor: root.cameraBackgroundColor
-                    borderColor: "transparent"
-                    textColor: root.cameraTextColor
-                    mutedTextColor: root.mutedTextColor
+                    cache: false
+                    fillMode: Image.PreserveAspectCrop
+                    source: root.cameraFrameSource()
                 }
 
-                VirtualBarrierOverlay {
-                    anchors.fill: parent
-                    breached: root.automaticViewModel.state === "barrier_stopped"
-                    barrierOneColor: root.dangerColor
-                    barrierTwoColor: root.warningColor
-                    breachedFillColor: root.dangerColor
-                    visible: root.cameraConnected
+                Column {
+                    anchors.centerIn: parent
+                    spacing: 8
+                    visible: !root.cameraPreviewRunning()
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        text: "Preview parado"
+                        color: root.cameraTextColor
+                        font.pixelSize: 20
+                        font.bold: true
+                    }
+
+                    Text {
+                        anchors.horizontalCenter: parent.horizontalCenter
+                        width: 360
+                        horizontalAlignment: Text.AlignHCenter
+                        text: root.cameraPreviewStatusText()
+                        color: root.mutedTextColor
+                        font.pixelSize: 14
+                        wrapMode: Text.WordWrap
+                    }
                 }
             }
 
@@ -122,7 +196,7 @@ Item {
                             Layout.fillWidth: true
 
                             Text {
-                                text: root.automaticViewModel.stateText
+                                text: root.automaticStateText()
                                 color: root.textColor
                                 font.pixelSize: 20
                                 font.bold: true
@@ -130,9 +204,7 @@ Item {
                             }
 
                             Text {
-                                text: root.automaticViewModel.message.length > 0
-                                    ? root.automaticViewModel.message
-                                : "Aguardando comando."
+                                text: root.operationalMessage()
                                 color: root.mutedTextColor
                                 font.pixelSize: 14
                                 wrapMode: Text.WordWrap
@@ -142,49 +214,8 @@ Item {
                     }
                 }
 
-                Button {
-                    text: "Iniciar"
-                    enabled: root.automaticViewModel.state !== "running"
-                        && root.automaticViewModel.state !== "barrier_stopped"
-                    font.pixelSize: 18
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 56
-
-                    onClicked: root.automaticViewModel.start()
-                }
-
-                Button {
-                    text: "Parar"
-                    enabled: root.automaticViewModel.state === "running"
-                    font.pixelSize: 18
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 56
-
-                    onClicked: root.automaticViewModel.stop()
-                }
-
-                Button {
-                    text: "Simular barreira"
-                    enabled: root.automaticViewModel.state === "running"
-                    font.pixelSize: 18
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 56
-
-                    onClicked: root.automaticViewModel.notifyBarrierBreached()
-                }
-
-                Button {
-                    text: "Liberar barreira"
-                    enabled: root.automaticViewModel.state === "barrier_stopped"
-                    font.pixelSize: 18
-                    Layout.fillWidth: true
-                    Layout.preferredHeight: 56
-
-                    onClicked: root.automaticViewModel.clearBarrierStop()
-                }
-
                 Text {
-                    text: "A visualização ainda usa a câmera do Qt com sobreposição da barreira. O processamento OpenCV será conectado na próxima etapa."
+                    text: root.cameraPreviewStatusText()
                     color: root.mutedTextColor
                     font.pixelSize: 13
                     wrapMode: Text.WordWrap
@@ -195,6 +226,43 @@ Item {
                     Layout.fillHeight: true
                 }
             }
+        }
+    }
+
+    Connections {
+        target: root.automaticCameraViewModel
+
+        function onBarrierBreachedChanged() {
+            if (root.automaticCameraViewModel
+                    && root.automaticCameraViewModel.barrierBreached
+                    && root.automaticViewModel
+                    && root.automaticState() === "running") {
+                root.automaticViewModel.notifyBarrierBreached()
+                return
+            }
+
+            if (root.automaticCameraViewModel
+                    && !root.automaticCameraViewModel.barrierBreached
+                    && root.automaticViewModel
+                    && root.automaticState() === "barrier_stopped") {
+                root.automaticViewModel.clearBarrierStop()
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        if (root.automaticCameraViewModel) {
+            root.automaticCameraViewModel.startPreview()
+        }
+
+        if (root.automaticViewModel) {
+            root.automaticViewModel.start()
+        }
+    }
+
+    Component.onDestruction: {
+        if (root.automaticCameraViewModel) {
+            root.automaticCameraViewModel.pausePreview()
         }
     }
 }

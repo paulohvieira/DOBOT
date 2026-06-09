@@ -14,7 +14,9 @@ Item {
     required property string currentPage
     required property bool cameraConnected
     required property QtObject configViewModel
+    required property QtObject alarmViewModel
     required property QtObject automaticViewModel
+    required property QtObject automaticCameraViewModel
     required property string operationMode
     required property string dobotStatus
     required property string cameraStatus
@@ -123,6 +125,7 @@ Item {
 
         AutomaticPage {
             automaticViewModel: root.automaticViewModel
+            automaticCameraViewModel: root.automaticCameraViewModel
             cameraConnected: root.cameraConnected
             surfaceColor: root.surfaceColor
             surfaceSecondaryColor: root.surfaceSecondaryColor
@@ -142,11 +145,14 @@ Item {
         id: alarmPageComponent
 
         AlarmPage {
+            alarmViewModel: root.alarmViewModel
             surfaceColor: root.surfaceColor
             borderColor: root.borderColor
             textColor: root.textColor
             mutedTextColor: root.mutedTextColor
             normalColor: root.normalColor
+            warningColor: root.warningColor
+            dangerColor: root.dangerColor
             infoColor: root.infoColor
         }
     }
