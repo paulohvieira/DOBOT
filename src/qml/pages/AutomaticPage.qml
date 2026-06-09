@@ -8,11 +8,13 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import "../components"
 
 Item {
     id: root
 
     required property QtObject automaticViewModel
+    required property bool cameraConnected
 
     property color surfaceColor: "#ffffff"
     property color surfaceSecondaryColor: "#eef1f4"
@@ -23,6 +25,8 @@ Item {
     property color warningColor: "#d97706"
     property color dangerColor: "#dc2626"
     property color infoColor: "#2563eb"
+    property color cameraBackgroundColor: "#101418"
+    property color cameraTextColor: "#ffffff"
 
     function stateColor() {
         if (root.automaticViewModel.state === "running") {
@@ -47,75 +51,104 @@ Item {
         color: root.surfaceColor
         border.color: root.borderColor
 
-        ColumnLayout {
+        RowLayout {
             anchors.fill: parent
-            anchors.margins: 24
-            spacing: 18
-
-            Text {
-                text: "Modo Automático"
-                color: root.textColor
-                font.pixelSize: 30
-                font.bold: true
-                Layout.fillWidth: true
-            }
+            anchors.margins: 12
+            spacing: 12
 
             Rectangle {
                 radius: 8
-                color: root.surfaceSecondaryColor
+                color: root.cameraBackgroundColor
                 border.color: root.borderColor
+                Layout.minimumWidth: 620
                 Layout.fillWidth: true
-                Layout.preferredHeight: 96
+                Layout.fillHeight: true
+                clip: true
 
-                RowLayout {
+                CameraStream {
                     anchors.fill: parent
-                    anchors.margins: 18
-                    spacing: 16
+                    cameraConnected: root.cameraConnected
+                    backgroundColor: root.cameraBackgroundColor
+                    borderColor: "transparent"
+                    textColor: root.cameraTextColor
+                    mutedTextColor: root.mutedTextColor
+                }
 
-                    Rectangle {
-                        width: 28
-                        height: 28
-                        radius: 14
-                        color: root.stateColor()
-                    }
-
-                    ColumnLayout {
-                        spacing: 4
-                        Layout.fillWidth: true
-
-                        Text {
-                            text: root.automaticViewModel.stateText
-                            color: root.textColor
-                            font.pixelSize: 24
-                            font.bold: true
-                            Layout.fillWidth: true
-                        }
-
-                        Text {
-                            text: root.automaticViewModel.message.length > 0
-                                ? root.automaticViewModel.message
-                                : "Aguardando comando."
-                            color: root.mutedTextColor
-                            font.pixelSize: 16
-                            Layout.fillWidth: true
-                        }
-                    }
+                VirtualBarrierOverlay {
+                    anchors.fill: parent
+                    breached: root.automaticViewModel.state === "barrier_stopped"
+                    barrierOneColor: root.dangerColor
+                    barrierTwoColor: root.warningColor
+                    breachedFillColor: root.dangerColor
+                    visible: root.cameraConnected
                 }
             }
 
-            GridLayout {
-                columns: 2
-                columnSpacing: 16
-                rowSpacing: 16
-                Layout.fillWidth: true
+            ColumnLayout {
+                spacing: 12
+                Layout.preferredWidth: 280
+                Layout.maximumWidth: 300
+                Layout.fillHeight: true
+
+                Text {
+                    text: "Modo Automático"
+                    color: root.textColor
+                    font.pixelSize: 24
+                    font.bold: true
+                    Layout.fillWidth: true
+                }
+
+                Rectangle {
+                    radius: 8
+                    color: root.surfaceSecondaryColor
+                    border.color: root.borderColor
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 104
+
+                    RowLayout {
+                        anchors.fill: parent
+                        anchors.margins: 14
+                        spacing: 12
+
+                        Rectangle {
+                            width: 24
+                            height: 24
+                            radius: 12
+                            color: root.stateColor()
+                        }
+
+                        ColumnLayout {
+                            spacing: 4
+                            Layout.fillWidth: true
+
+                            Text {
+                                text: root.automaticViewModel.stateText
+                                color: root.textColor
+                                font.pixelSize: 20
+                                font.bold: true
+                                Layout.fillWidth: true
+                            }
+
+                            Text {
+                                text: root.automaticViewModel.message.length > 0
+                                    ? root.automaticViewModel.message
+                                : "Aguardando comando."
+                                color: root.mutedTextColor
+                                font.pixelSize: 14
+                                wrapMode: Text.WordWrap
+                                Layout.fillWidth: true
+                            }
+                        }
+                    }
+                }
 
                 Button {
                     text: "Iniciar"
                     enabled: root.automaticViewModel.state !== "running"
                         && root.automaticViewModel.state !== "barrier_stopped"
-                    font.pixelSize: 20
+                    font.pixelSize: 18
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 72
+                    Layout.preferredHeight: 56
 
                     onClicked: root.automaticViewModel.start()
                 }
@@ -123,9 +156,9 @@ Item {
                 Button {
                     text: "Parar"
                     enabled: root.automaticViewModel.state === "running"
-                    font.pixelSize: 20
+                    font.pixelSize: 18
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 72
+                    Layout.preferredHeight: 56
 
                     onClicked: root.automaticViewModel.stop()
                 }
@@ -133,9 +166,9 @@ Item {
                 Button {
                     text: "Simular barreira"
                     enabled: root.automaticViewModel.state === "running"
-                    font.pixelSize: 20
+                    font.pixelSize: 18
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 72
+                    Layout.preferredHeight: 56
 
                     onClicked: root.automaticViewModel.notifyBarrierBreached()
                 }
@@ -143,23 +176,24 @@ Item {
                 Button {
                     text: "Liberar barreira"
                     enabled: root.automaticViewModel.state === "barrier_stopped"
-                    font.pixelSize: 20
+                    font.pixelSize: 18
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 72
+                    Layout.preferredHeight: 56
 
                     onClicked: root.automaticViewModel.clearBarrierStop()
                 }
-            }
 
-            Text {
-                text: "Este controle ainda não executa o robô real."
-                color: root.mutedTextColor
-                font.pixelSize: 16
-                Layout.fillWidth: true
-            }
+                Text {
+                    text: "A visualização ainda usa a câmera do Qt com sobreposição da barreira. O processamento OpenCV será conectado na próxima etapa."
+                    color: root.mutedTextColor
+                    font.pixelSize: 13
+                    wrapMode: Text.WordWrap
+                    Layout.fillWidth: true
+                }
 
-            Item {
-                Layout.fillHeight: true
+                Item {
+                    Layout.fillHeight: true
+                }
             }
         }
     }

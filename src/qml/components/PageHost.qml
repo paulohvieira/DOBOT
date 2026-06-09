@@ -123,6 +123,7 @@ Item {
 
         AutomaticPage {
             automaticViewModel: root.automaticViewModel
+            cameraConnected: root.cameraConnected
             surfaceColor: root.surfaceColor
             surfaceSecondaryColor: root.surfaceSecondaryColor
             borderColor: root.borderColor
@@ -132,6 +133,8 @@ Item {
             warningColor: root.warningColor
             dangerColor: root.dangerColor
             infoColor: root.infoColor
+            cameraBackgroundColor: root.cameraBackgroundColor
+            cameraTextColor: root.cameraTextColor
         }
     }
 
